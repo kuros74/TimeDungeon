@@ -1,0 +1,5451 @@
+<html>
+<head>
+	
+	<title>Time Dungeon</title>
+
+	 <meta property="og:url"           content="http://timedungeon.x10host.com/Proyecto_MI/index.html" />
+
+  <meta property="og:type"          content="website" />
+
+  <meta property="og:title"         content="Time Dungeon" />
+  <meta property="og:description"   content="Resuelve los acertijos y escapa" />
+  <meta property="og:image"         content="http://timedungeon.x10host.com/Proyecto_MI/imagenes/time%20dungeon.jpg" />
+
+
+	 <link rel="stylesheet" type="text/css" href="style.css">
+
+	<script type="text/javascript" src="js/libs/jquery/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript" src="js/libs/three/three.js"></script>
+	
+	<script type="text/javascript" src="js/libs/three/MTLLoader.js"></script>
+	<script type="text/javascript" src="js/libs/three/OBJLoader.js"></script>
+	<script type="text/javascript" src="js/libs/three/FBXLoader.js"></script>
+	<script type="text/javascript" src="js/libs/three/inflate.min.js"></script>
+
+	<script type="text/javascript" src="js/libs/postprocesing/CopyShader.js"></script>
+	<script type="text/javascript" src="js/libs/postprocesing/EffectComposer.js"></script>
+	<script type="text/javascript" src="js/libs/postprocesing/RenderPass.js"></script>
+	<script type="text/javascript" src="js/libs/postprocesing/ShaderPass.js"></script>
+
+	<script type="text/javascript" src="js/libs/postprocesing/WhiteShader.js"></script>
+	<script type="text/javascript" src="js/libs/postprocesing/BlackShader.js"></script>
+
+	<script type="text/javascript" src="js/mifacebook.js"></script>
+
+	<script type="x-shader/x-vertex" id="vertexShader">
+		uniform float delta;
+void main() 
+{	
+
+	gl_PointSize=10.0;
+	vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+	gl_Position = projectionMatrix * modelViewPosition;
+}
+</script>
+<script type="x-shader/x-fragment" id="fragmentShader">
+	uniform float delta;
+
+void main() {
+	float g=delta;
+	gl_FragColor = vec4(1.0, g, 0.0, 1.0);
+}
+</script>
+
+		
+	<script type="text/javascript">
+		var uniforms={
+			delta:{value: 0}
+		};
+	 var Firematerial = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: document.getElementById('vertexShader').textContent,
+        fragmentShader: document.getElementById('fragmentShader').textContent
+    });
+
+	 var particleDelta=0;
+	 var colorChange=true;
+
+	var scene;
+	var CHealth=0;
+
+	var Uwall;
+
+	var Jugando=false;
+	var Jugando2=false;
+
+	var Blobs_1=[5];
+	var Bats_1=[3];
+	var Skulls_1=[1];
+	var Dragons_1=[1];
+
+	var FireBalls_1=[3];
+
+	var blobsSpawn=false;
+	var batsSpawn=false;
+	var skullsSpawn=false;
+	var DragonsSpawn=false;
+	var FireBallsSpawn=false;
+	var gotEnemies=false;
+
+	var Blobs_2=[8];
+	var Bats_2=[5];
+	var Skulls_2=[2];
+	var Dragons_2=[1];
+
+	var FireBalls_2=[3];
+	var FireBallFocus="P1";
+
+	var blobsSpawn2=false;
+	var batsSpawn2=false;
+	var skullsSpawn2=false;
+	var DragonsSpawn2=false;
+	var FireBallsSpawn2=false;
+
+	var gotEnemies2=false;
+
+
+	//var BlobAnim=[];
+
+	var AnimPlayOnce_Blob=false;
+
+	var composer;
+	var OriginalPass;
+	var pass1;
+	var pass2;
+	var Flashing=false;
+	var FlashTime=0;
+
+	var listener = new THREE.AudioListener();
+	var audioLoader = new THREE.AudioLoader();
+	var Music = new THREE.Audio( listener );
+
+	var PZs = new THREE.Audio( listener );
+	var LoseS = new THREE.Audio( listener );
+	var WinS = new THREE.Audio( listener );
+
+	var BatSound = new THREE.Audio( listener );
+	var BlobSound = new THREE.Audio( listener );
+	var SkullSound = new THREE.Audio( listener );
+	var FireSound = new THREE.Audio( listener );
+
+	var ShootSound = new THREE.Audio( listener );
+	var ShootSound2 = new THREE.Audio( listener );
+
+	var playOnce=false;
+	
+
+	var blackscene;
+	var camera;
+	var renderer;
+	var controls;
+	var objects = [];
+	var clock;
+	var deltaTime;	
+	var keys = {};
+	var raycaster;
+	var objetosConColision=[];
+	var LVLS=[9];
+	var LVLC=[9];
+	var Arrows1=[];
+	var Arrows2=[];
+	var Arrcount=0;
+	var Arrcount2=0;
+	var projectil;
+	var Clvl=0;
+	var oldMove="U";
+	var newMove="U";
+	var CantWalk="";
+	var oldMove2="U";
+	var newMove2="U";
+	var CantWalk2="";
+	var CanShoot=true;
+	var CanShoot2=true;
+	var puzzleSolved=false;
+	var particle;
+	var Psecs=0;
+	var totalObjects = 50;
+	var dirs = [];
+	var parts=[];
+	
+	var movementSpeed = .005;
+	
+	var objectSize = .1;
+	
+	var colors = [0x000000, 0xFF0000];
+	var CollsUp=false;
+	var bridge1;
+	var bridge2;
+	var bridge3;
+	var bridge4;
+	var bridge5;
+	var bridge6;
+	var deltaTimeSum=0;
+	var HintTime=0;
+
+	var Minutos=2;
+	var Segundos=0;
+
+	var YourTime=[2];
+
+	var bridge1_2;
+	
+	var bridge3_2;
+	var bridge5_2;
+	var bridge6_2;
+
+	var bridge2_2;
+	var bridge4_2;
+	var bridge7_2;
+	var bridge8_2;	
+
+	var gameMode="";
+	var SoloRankList="";
+	var objs=[];
+	var torch1=[];
+	var torch2=[];
+	var torch3;
+	var torch4;
+	var timerStart=false;
+	var isWorldReady = [ false, false ];
+	var play=false;
+	var play2=false;
+
+	var Rank1="";
+	var Rank2="";
+	var Rank3="";
+	var Rank4="";
+	var Rank5="";
+
+
+
+	$(document).ready(function() {
+
+
+		setupScene();		
+		
+		SoundsLoad();
+
+		Player1fbx();
+		Player2fbx();
+
+		LoadEnemies();
+		LoadEnemies2();
+
+		
+
+		raycaster = new THREE.Raycaster();
+		
+
+loadOBJWithMTL("assets/props/arrow/", "arrow.obj", "arrow.mtl", (object) => {
+
+			object.scale.set(.1,.1,.1);
+			object.position.set(-1,.4,3.5);
+			object.name="arrow";
+
+
+			object.rayos=[new THREE.Vector3(0,0,-1)];
+
+			//scene.add(object);
+
+
+			
+			isWorldReady[0] = true;
+		
+			
+		});
+
+loadOBJWithMTL("assets/props/arrow2/", "arrow.obj", "arrow.mtl", (object) => {
+			object.scale.set(.1,.1,.1);
+			object.position.set(-1,.4,3.5);
+
+			var p2=object.clone();
+			p2.position.set(1,-10,3.5);
+			p2.name="arrow2";
+			p2.rayos=[new THREE.Vector3(0,0,-1)];
+			scene.add(p2);
+
+			
+			isWorldReady[0] = true;
+		
+			
+		});
+
+loadOBJWithMTL("assets/props/", "doorframe.obj", 
+				"doorframe.mtl", (object) => {
+				
+				object.scale.set(.25,.2,.3);
+				object.position.z=-3.4;				
+				object.position.y=-.05;
+
+				scene.add(object);
+				objetosConColision.push(object);
+	
+		});
+
+loadOBJWithMTL("assets/props/", "door.obj", 
+				"door.mtl", (object) => {
+				
+				object.scale.set(.25,.2,.3);
+				object.position.z=-3.4;				
+				object.position.y=-.05;
+				object.name="door";
+
+				scene.add(object);
+				objetosConColision.push(object);
+	
+		});
+
+
+//----------------Collision Boxes---------------
+loadOBJWithMTL("assets/props/arrow/", "collbox.obj", 
+	"collbox.mtl", (object) => {		
+			object.children[0].transparent=true;
+			object.children[0].material.transparent=true;
+			object.children[0].material.opacity=0;
+			
+			Uwall=object.clone();
+			var Dwall=object.clone();
+			var Rwall=object.clone();
+			var Hole1=object.clone();
+			var Hole2=object.clone();
+			var BridgeHole=object.clone();
+
+			var Hole3=object.clone();
+			var Hole4=object.clone();
+			var BridgeHole2=object.clone();
+			var BridgeHole3=object.clone();
+			var BridgeHole4=object.clone();
+
+			var Hole5=object.clone();
+			var BridgeHole5=object.clone();
+
+			Hole5.name="H5";
+			BridgeHole5.name="BH5";
+
+			Hole5.position.y=-1;
+			BridgeHole5.position.y=-1;
+
+			Hole5.position.z=-4.1;
+			BridgeHole5.position.z=-2.3;
+
+			Hole5.scale.z=1.5;
+			BridgeHole5.scale.z=3;
+
+			Hole5.position.x=-1.3;
+			BridgeHole5.position.x=-1.3;
+
+			
+			
+			object.scale.z=9;
+			object.position.x=-5.2;
+
+			Dwall.scale.x=9;
+			Dwall.position.z=4.7;
+
+			Rwall.scale.z=9;
+			Rwall.position.x=5.2;
+
+			Uwall.scale.x=9;
+			Uwall.position.z=-4.7;
+
+			Hole1.scale.x=4;
+			Hole1.scale.z=2;
+			Hole1.position.x=+3;
+						
+			Hole2.scale.x=4;
+			Hole2.scale.z=2;
+			Hole2.position.x=-3;	
+
+			BridgeHole.scale.x=2;
+			BridgeHole.scale.z=2;
+
+			BridgeHole3.scale.x=2;
+			BridgeHole3.scale.z=2;
+
+			Hole1.name="H1";
+			Hole2.name="H2";
+			BridgeHole.name="BH1";
+			BridgeHole3.name="BH3";
+
+			Hole1.position.y=-1;
+			Hole2.position.y=-1;
+			BridgeHole.position.y=-1;
+			BridgeHole3.position.y=-1;
+			BridgeHole3.position.x=-4;
+
+			BridgeHole2.position.y=-1;
+			Hole3.position.y=-1;
+			Hole4.position.y=-1;
+
+			Hole3.position.x=1.3;
+			Hole4.position.x=-1.3;
+			BridgeHole2.position.x=1.3;
+
+			Hole3.position.z=1.5;
+			Hole4.position.z=-2.5;
+			BridgeHole2.position.z=3;
+			BridgeHole2.scale.z=2;
+
+			Hole4.scale.z=3;
+
+			Hole3.name="H3";
+			Hole4.name="H4";
+			BridgeHole2.name="BH2";
+
+			BridgeHole4.scale.x=2;
+			BridgeHole4.scale.z=2;
+			BridgeHole4.name="BH4";
+			BridgeHole4.position.y=-1;
+			BridgeHole4.position.x=4;		
+
+
+			scene.add(object);
+			scene.add(Dwall);
+			scene.add(Uwall);
+			scene.add(Rwall);
+			scene.add(Hole1);
+			scene.add(Hole2);
+			scene.add(BridgeHole);
+			scene.add(Hole3);
+			scene.add(Hole4);
+			scene.add(Hole5);
+			scene.add(BridgeHole2);
+			scene.add(BridgeHole3);
+			scene.add(BridgeHole4);
+			scene.add(BridgeHole5);
+
+			objetosConColision.push(object);
+			objetosConColision.push(Dwall);
+			objetosConColision.push(Uwall);
+			objetosConColision.push(Rwall);
+			objetosConColision.push(Hole1);
+			objetosConColision.push(Hole2);
+			objetosConColision.push(BridgeHole);
+			objetosConColision.push(Hole3);
+			objetosConColision.push(Hole4);
+			objetosConColision.push(Hole5);
+			objetosConColision.push(BridgeHole2);
+			objetosConColision.push(BridgeHole3);
+			objetosConColision.push(BridgeHole4);
+			objetosConColision.push(BridgeHole5);
+			
+		});
+
+//---------------------LEVELS--------------------
+
+		loadOBJWithMTL("assets/lvl/", "lvl_1.obj", "lvl_1.mtl", (object) => {
+
+			LVLS[0]=object.clone();
+			LVLS[1]=object.clone();
+			LVLS[2]=object.clone();
+			LVLS[4]=object.clone();
+			LVLS[7]=object.clone();
+			LVLS[8]=object.clone();
+
+			LVLC[0]=object.clone();
+			LVLC[1]=object.clone();
+			LVLC[2]=object.clone();
+			LVLC[4]=object.clone();
+			LVLC[7]=object.clone();
+			LVLC[8]=object.clone();
+			
+
+	
+		});
+
+		loadOBJWithMTL("assets/lvl/", "lvl_2.obj", "lvl_2.mtl", (object) => {
+
+			LVLS[3]=object.clone();
+			LVLS.push(object);
+
+			LVLC[3]=object.clone();
+			LVLC.push(object);
+			
+			
+		
+			
+		});
+		loadOBJWithMTL("assets/lvl/", "lvl_3.obj", "lvl_3.mtl", (object) => {
+
+			LVLS[5]=object.clone();
+			LVLS.push(object);
+
+			
+	
+		});
+		loadOBJWithMTL("assets/lvl/", "lvl_4.obj", "lvl_4.mtl", (object) => {
+
+			LVLS[6]=object.clone();
+			LVLS.push(object);
+
+			LVLC[6]=object.clone();
+			LVLC.push(object);
+
+		});
+
+		loadOBJWithMTL("assets/lvl/", "lvl_5.obj", "lvl_5.mtl", (object) => {
+
+			LVLC[5]=object.clone();
+			LVLC.push(object);
+
+		});
+
+
+//------------------------PORPS---------------
+
+		loadOBJWithMTL("assets/props/", "Arrow.obj", "Arrow.mtl", (object) => {
+			object.rotation.y=THREE.Math.degToRad( 180 );
+			object.scale.set(.04,.04,.04);
+			object.position.y=-.25;
+			object.position.x=2;
+			projectil=object.clone();
+			
+		});
+
+		loadOBJWithMTL("assets/props/", "bridge.obj", "bridge.mtl", (object) => {
+			object.position.y=-.25;
+			object.position.z=2.9;
+
+			bridge1=object.clone();
+			object.scale.x=.7;
+			//object.position.x=-.1;
+			bridge4=object.clone();
+			object.scale.x=1;
+
+			bridge1.name="Bdown";
+			bridge4.name="Bdown";
+
+			object.position.y=-.25;
+			object.position.z=2.9;
+			object.position.x=-4;
+			bridge3=object.clone();
+			bridge3.name="Bdown";
+
+			bridge2=object.clone();
+			bridge2.rotation.y=THREE.Math.degToRad( 90 );
+			bridge2.position.x=-1;
+			bridge2.position.z=3.2;
+
+			bridge2.name="Bdown";
+			bridge5=bridge2.clone();
+			bridge5.name="Bdown";
+
+			object.position.y=-.25;
+			object.position.z=2.9;
+			object.position.x=4;
+			bridge6=object.clone();
+			bridge6.name="Bdown";
+					
+
+			LVLS[3].add(bridge1);
+			LVLS[5].add(bridge2);
+
+			LVLS[6].add(bridge3);
+			LVLS[6].add(bridge4);
+			LVLS[6].add(bridge5);
+/////////////////////////////////////////////////////////////////////
+			bridge1_2 =bridge1.clone();
+
+			bridge3_2 =bridge3.clone();
+			bridge5_2 =bridge5.clone();
+			bridge6_2 =bridge6.clone();
+
+			bridge2_2 =bridge3_2.clone();
+			bridge4_2 =bridge5_2.clone();
+			bridge7_2 =bridge6_2.clone();
+
+			bridge8_2 =bridge4_2.clone();
+
+			bridge8_2.position.x=-3.6;
+			bridge8_2.position.z=-2.2;
+
+
+			LVLC[3].add(bridge1_2);
+
+			LVLC[5].add(bridge3_2);
+			LVLC[5].add(bridge6_2);
+			LVLC[5].add(bridge5_2);
+
+			LVLC[6].add(bridge2_2);
+			LVLC[6].add(bridge4_2);
+			LVLC[6].add(bridge7_2);
+			LVLC[6].add(bridge8_2);
+			
+		});
+
+		loadOBJWithMTL("assets/props/", "button.obj", "button.mtl", (object) => {
+			object.position.y=.1;
+			object.name="btn1";
+			LVLS[0].add(object.clone());
+
+			
+			object.position.set(-2,.1,2);
+			object.name="btn2";
+			LVLS[3].add(object.clone());
+
+
+			object.position.set(-2,.1,2);
+			object.name="btn3";
+			LVLS[5].add(object.clone());
+
+
+			object.position.set(-3.5,.1,-2.5);
+			object.name="btn4";
+			LVLS[6].add(object.clone());
+
+			object.position.set(-4,.1,2);
+			object.name="btn5";
+			LVLS[6].add(object.clone());
+
+			object.position.set(3.5,.1,2.5);
+			object.name="btn6";
+			LVLS[6].add(object.clone());
+
+	
+		});
+
+		loadOBJWithMTL("assets/props/ButtonCoop/", "button.obj", 
+			"button.mtl", (object) => {			
+
+			object.position.y=.1;
+			object.position.x=-1;
+			object.name="btn1";
+			LVLC[0].add(object.clone());
+			
+			object.position.x=-3;
+			object.position.z=-2;
+			object.name="btn3";
+			LVLC[2].add(object.clone());
+
+			object.position.x=-2;
+			object.position.z=2;
+			object.name="btn5";
+			LVLC[3].add(object.clone());
+
+			object.position.x=-2;
+			object.position.z=-2;
+			object.name="btn6";
+			LVLC[3].add(object.clone());
+
+			object.position.x=-2;
+			object.position.z=2;
+			object.name="btn8";
+			LVLC[5].add(object.clone());
+
+
+			object.position.x=-2;
+			object.position.z=2;
+			object.name="btn10";
+			LVLC[6].add(object.clone());
+
+			object.position.x=-4;
+			object.position.z=-3;
+			object.name="btn12";
+			LVLC[6].add(object.clone());
+
+
+	
+		});
+
+		loadOBJWithMTL("assets/props/ButtonCoop/", 
+			"button2.obj", "button2.mtl", (object) => {			
+			object.position.y=.1;
+
+			object.position.x=1;
+			object.name="btn2";
+			LVLC[0].add(object.clone());
+			
+			object.position.x=3;
+			object.position.z=-1;
+			object.name="btn4";
+			LVLC[2].add(object.clone());
+
+			object.position.x=2;
+			object.position.z=-2;
+			object.name="btn7";
+			LVLC[3].add(object.clone());
+
+			object.position.x=4;
+			object.position.z=3;
+			object.name="btn9";
+			LVLC[5].add(object.clone());
+
+			object.position.x=4;
+			object.position.z=3;
+			object.name="btn11";
+			LVLC[6].add(object.clone());
+
+			object.position.x=4;
+			object.position.z=-3;
+			object.name="btn13";
+			LVLC[6].add(object.clone());
+	
+		});
+
+		loadOBJWithMTL("assets/props/", "torch.obj", "torch.mtl", (object) => {
+			object.position.y=.15;
+			object.position.x=-2;
+			object.position.z=-2;
+			torch1.push(object.clone());
+			torch1[0].name="YES";
+			LVLS[2].add(object.clone());
+
+			object.position.x=-2;
+			object.position.z=2;
+			torch1.push(object.clone());
+			torch1[1].name="NO";
+			LVLS[2].add(object.clone());
+
+			object.position.x=2;
+			object.position.z=2;
+			torch1.push(object.clone());
+			torch1[2].name="NO";
+			LVLS[2].add(object.clone());
+
+			object.position.x=2;
+			object.position.z=-2;
+			torch1.push(object.clone());
+			torch1[3].name="NO";
+			LVLS[2].add(object.clone());
+
+			object.position.x=0.4;
+			object.position.z=1.5;
+			torch1.push(object.clone());
+			torch1[4].name="YES";
+			LVLS[5].add(object.clone());
+
+			object.position.x=2.3;
+			object.position.z=1.5;
+			torch1.push(object.clone());
+			torch1[5].name="NO";
+			LVLS[5].add(object.clone());
+
+			object.position.x=2.3;
+			object.position.z=-2;
+			torch1.push(object.clone());
+			torch1[6].name="NO";
+			LVLS[5].add(object.clone());
+/////////////////////////////////////////////////////////////
+			object.position.y=.15;
+			object.position.x=-2;
+			object.position.z=-2;
+			torch2.push(object.clone());
+			torch2[0].name="NO";
+			LVLC[2].add(object.clone());
+
+			object.position.x=-2;
+			object.position.z=2;
+			torch2.push(object.clone());
+			torch2[1].name="NO";
+			LVLC[2].add(object.clone());
+
+			object.position.x=2;
+			object.position.z=1;
+			torch2.push(object.clone());
+			torch2[2].name="NO";
+			LVLC[2].add(object.clone());
+
+			object.position.x=2;
+			object.position.z=-1;
+			torch2.push(object.clone());
+			torch2[3].name="NO";
+			LVLC[2].add(object.clone());
+
+			object.position.x=0;
+			object.position.z=2;
+			torch2.push(object.clone());
+			torch2[4].name="NO";
+			LVLC[5].add(object.clone());
+
+			object.position.x=3;
+			object.position.z=2;
+			torch2.push(object.clone());
+			torch2[5].name="NO";
+			LVLC[5].add(object.clone());
+
+			object.position.x=3;
+			object.position.z=-2;
+			torch2.push(object.clone());
+			torch2[6].name="NO";
+			LVLC[5].add(object.clone());
+
+			
+			
+		isWorldReady[1] = true;
+			
+		});
+/////////////////POST PROCES/////////////////////////
+composer = new THREE.EffectComposer(renderer);
+
+OriginalPass = new THREE.RenderPass(scene,camera);
+composer.addPass(OriginalPass);
+OriginalPass.renderToScreen=true;
+
+pass1=new THREE.ShaderPass(THREE.WhiteShader);
+composer.addPass(pass1);
+
+pass2=new THREE.ShaderPass(THREE.BlackShader);
+composer.addPass(pass2);
+
+
+
+////////////////////////////////////////////////////
+		render();
+
+		document.addEventListener('keydown', onKeyDown);
+		document.addEventListener('keyup', onKeyUp);		
+	});
+
+	function loadOBJWithMTL(path, objFile, mtlFile, onLoadCallback) {
+		var mtlLoader = new THREE.MTLLoader();
+		mtlLoader.setPath(path);
+		mtlLoader.load(mtlFile, (materials) => {
+			
+			var objLoader = new THREE.OBJLoader();
+			objLoader.setMaterials(materials);
+			objLoader.setPath(path);
+			objLoader.load(objFile, (object) => {
+				onLoadCallback(object);
+			});
+
+		});
+	}
+
+	function onKeyDown(event) {
+		keys[String.fromCharCode(event.keyCode)] = true;
+	}
+	function onKeyUp(event) {
+		keys[String.fromCharCode(event.keyCode)] = false;
+	}
+
+//----------------------------------------------------------
+	function render() {
+		
+	SoloGame();
+	CoopGame();
+
+	if(timerStart==true){
+	deltaTimeSum+=deltaTime;
+		if(Math.floor(deltaTimeSum)>=1){
+			Segundos--;
+			YourTime[1]+=1;
+			HintTime++;
+			
+			if(Segundos==-1){
+				Minutos--;
+				YourTime[0]+=1;
+			
+				Segundos=59;
+				YourTime[1]=0;
+			}
+			if(Minutos==0&&Segundos==0){
+			LoseScreen();
+			}
+			deltaTimeSum=0;
+		}
+
+
+			if(Segundos>=10){
+				$("#timertext").text("0"+Minutos+":"+Segundos);
+
+			}else{
+				
+			$("#timertext").text("0"+Minutos+":0"+Segundos);	
+			}
+		}
+		composer.render();
+		//renderer.render(scene, camera);
+	
+	}
+
+	function setupScene() {		
+		var visibleSize = { width: window.innerWidth-18, height: window.innerHeight-18};
+		clock = new THREE.Clock();		
+		scene = new THREE.Scene();
+		blackscene = new THREE.Scene();
+		camera = new THREE.PerspectiveCamera(75, visibleSize.width / visibleSize.height, 0.1, 100);
+		
+		//camera.position.y = .1;
+		//camera.rotation.y=THREE.Math.degToRad( 0 );
+
+		camera.position.y = 10;
+		camera.rotation.x=THREE.Math.degToRad( -90 );
+		
+
+		renderer = new THREE.WebGLRenderer( {precision: "mediump" } );
+		renderer.setClearColor(new THREE.Color(0, 0, 0));
+		renderer.setPixelRatio(visibleSize.width / visibleSize.height);
+		renderer.setSize(visibleSize.width, visibleSize.height);
+
+		var ambientLight = new THREE.AmbientLight(new THREE.Color(1, 1, 1), 1.0);
+		scene.add(ambientLight);
+
+		var directionalLight = new THREE.DirectionalLight(new THREE.Color(1, 1, 0), 0.4);
+		directionalLight.position.set(0, 0, 1);
+		scene.add(directionalLight);
+
+		var grid = new THREE.GridHelper(50, 10, 0xffffff, 0xffffff);
+		grid.position.y = -1;
+		//scene.add(grid);
+
+		$("#scene-section").append(renderer.domElement);
+	}
+//----------------------------------------------------------
+function ShootFE(item,index) {	
+	if(item!=null){
+	scene.add(item);
+	var hit =item.name;
+
+	item.translateZ(10 * deltaTime);
+
+	if(item.position.z>=3.8||item.position.z<=-3.8||
+	item.position.x>=4.3||item.position.x<=-4.3	||hit=="hit")
+{
+	scene.remove(item);
+	Arrows1[index]=null;
+	Arrcount--;
+	
+}
+}
+
+
+}
+function ShootFE2(item,index) {	
+	if(item!=null){
+	scene.add(item);
+	var hit =item.name;
+
+	item.translateZ(10 * deltaTime);
+
+	if(item.position.z>=3.8||item.position.z<=-3.8||
+	item.position.x>=4.3||item.position.x<=-4.3	||hit=="hit")
+{
+	scene.remove(item);
+	Arrows2[index]=null;
+	Arrcount2--;
+	
+}
+}
+
+
+}
+//--------------------------------------Particles-----------------
+
+function ExplodeAnimation(x,y,z,color)
+{
+  var geometry = new THREE.Geometry();
+  
+  for (i = 0; i < totalObjects; i ++) 
+  { 
+    var vertex = new THREE.Vector3();
+    vertex.x = x;
+    vertex.y = y;
+    vertex.z = z;
+  
+    geometry.vertices.push( vertex );
+    dirs.push({x:(Math.random() * movementSpeed)-(movementSpeed/2),y:(Math.random() * movementSpeed)-(movementSpeed/2),z:(Math.random() * movementSpeed)-(movementSpeed/2)});
+  }
+
+  var material = new THREE.PointsMaterial( { size: objectSize,  color: colors[color],
+   });
+
+  var particles = new THREE.Points( geometry, Firematerial );
+  
+  this.object = particles;
+  this.status = true;
+  
+  this.xDir = (Math.random() * movementSpeed)-(movementSpeed/2);
+  this.yDir = (Math.random() * movementSpeed)-(movementSpeed/2);
+  this.zDir = (Math.random() * movementSpeed)-(movementSpeed/2);
+  
+  scene.add( this.object  ); 
+  
+  this.update = function(){
+    if (this.status == true){
+
+    	particles.material.uniforms.delta.value=particleDelta;
+
+
+      var pCount = totalObjects;
+      while(pCount--) {
+        var particle =  this.object.geometry.vertices[pCount]
+        particle.y += dirs[pCount].y;
+        particle.x += dirs[pCount].x;
+        particle.z += dirs[pCount].z;
+
+        if(particle.y>=.3){
+        	scene.remove(this.object);
+        }
+
+      }
+      this.object.geometry.verticesNeedUpdate = true;
+    }
+  }
+
+  this.del = function(){
+        	scene.remove(this.object);      
+  }
+  
+}
+
+function updateParticle(item,index) {	
+	if(item!=null){
+		item.update();
+	}	
+	}
+
+	function delParticle(item,index) {	
+	if(item!=null){
+		item.del();
+	}	
+	}
+//------------------------------------------------------
+function SoloGame(){
+
+	if(play){
+		requestAnimationFrame(render);
+		deltaTime = clock.getDelta();	
+		if(HintTime>=20){
+
+			document.getElementById("HintDiv2").style.visibility=
+			"visible";
+		}
+
+		//-----------------Particle Test--------------------
+			//parts.push(new ExplodeAnimation(
+			//				objects[i].position.x,
+			//				objects[i].position.y,
+			//				objects[i].position.z,
+			//				1
+			//				));
+
+			//parts.forEach(updateParticle);
+		//-------------------------------------------------
+
+		var arrow=scene.getObjectByName("Char1");
+
+		var yaw = 0;
+		var forward = 0;
+		if (keys["A"]) {
+			if(CantWalk!="L"){
+				forward = -5;
+			newMove="L";
+			CantWalk="";
+			arrow.rayos=[new THREE.Vector3(-1,0,0)];
+			
+			if(arrow.Anim.length>0){
+				
+				for(var i=0;i<arrow.Anim.length;i++){
+					arrow.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}	
+
+		} else if (keys["D"]) {
+			if(CantWalk!="R"){
+				forward = -5;
+			newMove="R";
+			CantWalk="";
+			arrow.rayos=[new THREE.Vector3(1,0,0)];
+
+			if(arrow.Anim.length>0){
+				
+				for(var i=0;i<arrow.Anim.length;i++){
+					arrow.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}
+
+		}
+		if (keys["W"]) {
+			if(CantWalk!="U"){
+				forward = -5;
+			newMove="U";
+			CantWalk="";
+			arrow.rayos=[new THREE.Vector3(0,0,-1)];
+
+			if(arrow.Anim.length>0){
+				
+				for(var i=0;i<arrow.Anim.length;i++){
+					arrow.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+
+			}	
+		} else if (keys["S"]) {
+			if(CantWalk!="D"){
+				forward = -5;
+			newMove="D";
+			CantWalk="";
+			arrow.rayos=[new THREE.Vector3(0,0,1)];
+
+			if(arrow.Anim.length>0){
+				
+				for(var i=0;i<arrow.Anim.length;i++){
+					arrow.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}
+		}
+
+		if (keys["V"]) {
+			if(CanShoot){
+				if(Arrcount!=3){
+					if(ShootSound.isPlaying){
+						ShootSound.stop();
+					}
+					ShootSound.play();
+				projectil.position.x=arrow.position.x;
+				projectil.position.y=arrow.position.y;
+				projectil.position.z=arrow.position.z;
+
+					if(newMove=="U"){
+					projectil.rotation.y=THREE.Math.degToRad( 0 );
+					}
+					if(newMove=="D"){
+					projectil.rotation.y=THREE.Math.degToRad( 180 );
+					}
+					if(newMove=="R"){
+					projectil.rotation.y=THREE.Math.degToRad( 90 );
+					}
+					if(newMove=="L"){
+					projectil.rotation.y=THREE.Math.degToRad( 270 );
+					}	
+				Arrows1.push(projectil.clone());
+				Arrcount++;
+				}
+				CanShoot=false;
+			}
+		
+		}else{CanShoot=true;}
+
+		if(Arrows1.length>0){
+		Arrows1.forEach(ShootFE);
+		}
+		//---------------Seconds
+		//deltaTimeSum+=deltaTime;
+		//document.getElementById('pos2').value=Math.floor(deltaTimeSum);
+
+		if (keys["P"]) {
+			btnPause();
+		}
+
+
+		if (isWorldReady[0] && isWorldReady[1]) {
+
+			
+
+	if(colorChange){
+    		particleDelta+=0.05;
+    		if(particleDelta>=1.0){
+    			colorChange=false;
+    		}
+    	}else{
+    		particleDelta-=0.05;
+    		if(particleDelta<=0.0){
+    		colorChange=true;	
+    		}
+    	}
+
+			
+
+
+			if(CHealth<=0){
+				LoseScreen();
+			}
+			
+			
+			var door=scene.getObjectByName("door");
+			
+			//document.getElementById('pos3').value=Clvl;
+
+			//document.getElementById('pos').value=
+			//document.getElementById('pos2').value=
+			//document.getElementById('pos').value=arrow.position.x;
+			//document.getElementById('pos2').value=arrow.position.z;
+
+			if(arrow.position.z<=-3.4&&
+				arrow.position.z>=-3.9&&
+				arrow.position.x<=.7 &&
+				arrow.position.x>=-.7){
+				Flashing=false;
+				FlashTime=0;
+
+			if(Clvl==8){
+			WinScreen();
+			}	else{
+
+			scene.remove(LVLS[Clvl]);
+			Clvl++;
+			scene.add(LVLS[Clvl]);
+			puzzleSolved=false;
+			door.position.y=0;
+			arrow.position.z=3.5
+
+			if(Clvl==2){
+			torch1[0].name="YES";
+			torch1[1].name="NO";
+			torch1[2].name="NO";
+			torch1[3].name="NO";
+			}
+
+			if(Clvl==3){
+			parts.forEach(delParticle);
+			var H2=scene.getObjectByName("H2");
+			H2.scale.x=4;
+			H2.scale.z=2;
+			H2.position.x=-3;
+			}
+
+			if(Clvl==4){
+			bridge1.name="Bdown";
+			bridge1.position.z=2.9;
+			var BH1=scene.getObjectByName("BH1");
+			var H2=scene.getObjectByName("H2");
+			BH1.position.z=0;			
+			}
+
+			
+
+			if(Clvl==5){
+			torch1[4].name="YES";
+			torch1[5].name="NO";
+			torch1[6].name="NO";
+			}
+
+			if(Clvl==6){
+			parts.forEach(delParticle);
+			bridge1.name="Bdown";
+			bridge1.position.z=2.9;
+			bridge2.name="Bdown";
+			bridge2.position.x=-1;
+			var BH2=scene.getObjectByName("BH2");
+			BH2.position.x=1.3;
+			}
+
+			CollsUp=false;
+			var H1=scene.getObjectByName("H1");
+			var H2=scene.getObjectByName("H2");
+			var H3=scene.getObjectByName("H3");
+			var H4=scene.getObjectByName("H4");
+			var BH1=scene.getObjectByName("BH1");
+		
+			H1.position.y=-1;
+			H2.position.y=-1;
+			H3.position.y=-1;
+			H4.position.y=-1;
+			BH1.position.y=-1;
+			BH2.position.y=-1;
+			BH3.position.y=-1;
+
+			}
+			}
+			
+			arrow.translateZ(-1*forward * deltaTime);
+
+			getEnemies();
+			
+			
+
+			Blobs_1.forEach(BlobIA);
+			Bats_1.forEach(BatIA);
+			Skulls_1.forEach(SkullIA);
+			Dragons_1.forEach(DragonIA);
+
+			FireBalls_1.forEach(FireBallIA);
+
+			/*if(Blobs_1[0].BlobAnim.length>0){
+				
+				for(var i=0;i<Blobs_1[0].BlobAnim.length;i++){
+					Blobs_1[0].BlobAnim[i].update(deltaTime );
+				}
+				
+			}
+			if(Blobs_1[1].BlobAnim.length>0){
+				
+				for(var i=0;i<Blobs_1[1].BlobAnim.length;i++){
+					Blobs_1[1].BlobAnim[i].update(deltaTime );
+				}
+				
+			}*/
+
+			//BlobModel.translateZ(.5 * deltaTime);
+
+
+
+			if(oldMove!=newMove){
+			if(newMove=="U"){
+			arrow.rotation.y=THREE.Math.degToRad( 180 );
+			}
+			if(newMove=="D"){
+			arrow.rotation.y=THREE.Math.degToRad( 0 );
+			}
+			if(newMove=="L"){
+			arrow.rotation.y=THREE.Math.degToRad( 270 );
+			}
+			if(newMove=="R"){
+			arrow.rotation.y=THREE.Math.degToRad( 90 );
+			}
+			oldMove=newMove;
+			}
+
+//-------------------------Puzzles------------------
+	if(Clvl==0){
+		document.getElementById("HintDiv2").style.visibility=
+			"visible";
+				HintShow(0);
+				var btn1=scene.getObjectByName("btn1");
+				if(arrow.position.z<=btn1.position.z+.3 &&
+				arrow.position.z>=btn1.position.z-.3 &&
+				arrow.position.x<=btn1.position.x+.3  &&
+				arrow.position.x>=btn1.position.x-.3){
+				puzzleSolved=true;
+				}
+				else{
+				//document.getElementById('pos2').value="NO";
+				}
+				if(puzzleSolved){
+					HintTime=0;
+					HintHide();
+					timerStart=true;
+					Flash();
+					StartMusic();
+					
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+
+	if(Clvl==1){
+				SpawnBats();
+
+				if(Bats_1[0].position.y<0
+					&&Bats_1[1].position.y<0
+					&&Bats_1[2].position.y<0){
+					puzzleSolved=true;
+				}
+
+				if(puzzleSolved){
+					HintTime=0;
+					HintHide();
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+
+	if(Clvl==2){
+
+		
+			if(Arrows1.length>0){
+			for (var x =0; x <= Arrows1.length-1; x++) {
+				for (var y =0; y <= torch1.length-1; y++) {
+				if(Arrows1[x]!=null){
+
+				if(Arrows1[x].position.z<=torch1[y].position.z+.3 &&
+				Arrows1[x].position.z>=torch1[y].position.z-.3 &&
+				Arrows1[x].position.x<=torch1[y].position.x+.3  &&
+				Arrows1[x].position.x>=torch1[y].position.x-.3)
+				{
+					if(Arrows1[x].name!="YES" &&torch1[y].name=="YES")
+						{
+							Arrows1[x].name="YES";
+							
+						}else{
+					if(Arrows1[x].name=="YES" &&torch1[y].name=="NO")
+						{
+							torch1[y].name="YES";
+							
+						}
+						}
+				}
+						}
+				}}
+			 }
+
+		//---------------Particulas por segundo
+		Psecs+=deltaTime;
+		
+		if(torch1[1].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch1[1].position.x,
+							torch1[1].position.y,
+							torch1[1].position.z,
+							1
+							));
+		}}
+
+		if(torch1[2].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch1[2].position.x,
+							torch1[2].position.y,
+							torch1[2].position.z,
+							1
+							));
+		}}
+		if(torch1[3].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch1[3].position.x,
+							torch1[3].position.y,
+							torch1[3].position.z,
+							1
+							));
+		}}
+
+		if(torch1[0].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		Psecs=0;
+		parts.push(new ExplodeAnimation(
+							torch1[0].position.x,
+							torch1[0].position.y,
+							torch1[0].position.z,
+							1
+							));
+		}}
+		parts.forEach(updateParticle);
+
+		
+		//-------------------------
+
+		if(torch1[0].name=="YES"&&
+		   torch1[1].name=="YES"&&
+		   torch1[2].name=="YES"&&
+		   torch1[3].name=="YES"){
+			puzzleSolved=true;
+		}
+				
+				if(puzzleSolved){
+					HintTime=0;
+					HintHide();
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+
+	if(Clvl==3){
+		var H1=scene.getObjectByName("H1");
+		var H2=scene.getObjectByName("H2");
+		var BH1=scene.getObjectByName("BH1");
+		if(CollsUp==false){
+		H1.scale.z=2;	
+		H1.position.z=0;
+		H1.position.x=3;
+		H1.position.y=0;
+		H2.position.y=0;
+		BH1.position.y=0;
+		CollsUp=true;
+		}
+
+		var btn2=scene.getObjectByName("btn2");
+
+				if(arrow.position.z<=btn2.position.z+.3 &&
+				arrow.position.z>=btn2.position.z-.3 &&
+				arrow.position.x<=btn2.position.x+.3  &&
+				arrow.position.x>=btn2.position.x-.3){
+				bridge1.name="Bup";
+				puzzleSolved=true;
+				}
+				if(bridge1.name=="Bup"){
+					if(bridge1.position.z>=0){
+						bridge1.position.z-=.05;
+						BH1.position.z-=.05;
+					}
+
+					if(bridge1.position.z<=0){
+						BH1.position.y=-1;
+					}
+				}
+				if(puzzleSolved){
+					HintTime=0;
+					HintHide();
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+
+	if(Clvl==4){
+
+		SpawnBlobs();
+
+				if(Blobs_1[0].position.y<0
+					&&Blobs_1[1].position.y<0
+					&&Blobs_1[2].position.y<0
+					&&Blobs_1[3].position.y<0
+					&&Blobs_1[4].position.y<0){
+					puzzleSolved=true;
+				}
+
+				if(puzzleSolved){
+					
+					HintTime=0;
+					HintHide();
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+
+	if(Clvl==5){
+
+		if(Arrows1.length>0){
+			for (var x =0; x <= Arrows1.length-1; x++) {
+				for (var y =4; y <= torch1.length-1; y++) {
+				if(Arrows1[x]!=null){
+
+				if(Arrows1[x].position.z<=torch1[y].position.z+.3 &&
+				Arrows1[x].position.z>=torch1[y].position.z-.3 &&
+				Arrows1[x].position.x<=torch1[y].position.x+.3  &&
+				Arrows1[x].position.x>=torch1[y].position.x-.3)
+				{
+					if(Arrows1[x].name!="YES" &&torch1[y].name=="YES")
+						{
+							Arrows1[x].name="YES";
+							
+						}else{
+					if(Arrows1[x].name=="YES" &&torch1[y].name=="NO")
+						{
+							torch1[y].name="YES";
+							
+						}
+						}
+				}
+						}
+				}}
+			 }
+			 //-------------------------------------------
+			 Psecs+=deltaTime;
+
+
+		if(torch1[5].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch1[5].position.x,
+							torch1[5].position.y,
+							torch1[5].position.z,
+							1
+							));
+		}}
+		if(torch1[6].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch1[6].position.x,
+							torch1[6].position.y,
+							torch1[6].position.z,
+							1
+							));
+		}}
+
+		if(torch1[4].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		Psecs=0;
+		parts.push(new ExplodeAnimation(
+							torch1[4].position.x,
+							torch1[4].position.y,
+							torch1[4].position.z,
+							1
+							));
+		}}
+		parts.forEach(updateParticle);
+		//-------------------------------------------
+
+		var btn3=scene.getObjectByName("btn3");
+		var H1=scene.getObjectByName("H1");
+		var H3=scene.getObjectByName("H3");
+		var BH2=scene.getObjectByName("BH2");
+		if(CollsUp==false){
+		H1.scale.z=1;
+		H1.position.x-=.2;
+		H1.position.z=.5;
+		H1.position.y=0;
+		H3.position.y=0;
+		BH2.position.y=0;
+		CollsUp=true;
+		}
+				if(arrow.position.z<=btn3.position.z+.3 &&
+				arrow.position.z>=btn3.position.z-.3 &&
+				arrow.position.x<=btn3.position.x+.3  &&
+				arrow.position.x>=btn3.position.x-.3){
+				bridge2.name="Bup";		
+				}
+				if(bridge2.name=="Bup"){
+					if(bridge2.position.x<=1){
+						bridge2.position.x+=.05;
+						BH2.position.x+=.05;
+					}
+					if(bridge2.position.x>=1){
+						BH2.position.y=-1;
+					}
+				}
+
+				if(torch1[4].name=="YES"&&
+		   		   torch1[5].name=="YES"&&
+		   	  	   torch1[6].name=="YES"){
+				   puzzleSolved=true;
+				   }
+
+				if(puzzleSolved){
+					HintTime=0;
+					HintHide();
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+			
+	if(Clvl==6){
+
+		var btn4=scene.getObjectByName("btn4");
+		var btn5=scene.getObjectByName("btn5");
+		var btn6=scene.getObjectByName("btn6");
+
+
+		var H1=scene.getObjectByName("H1");
+		var H2=scene.getObjectByName("H2");
+		var H3=scene.getObjectByName("H3");
+		var H4=scene.getObjectByName("H4");
+		var BH1=scene.getObjectByName("BH1");
+		var BH2=scene.getObjectByName("BH2");
+		var BH3=scene.getObjectByName("BH3");
+		if(CollsUp==false){
+		H1.position.y=0;
+		H1.position.z=0;
+		H1.scale.z=2;
+		H2.position.y=0;
+		H2.position.x=-1.8;
+		H2.scale.x=-2.5;
+		H3.position.y=0;
+		H4.position.y=0;
+		BH1.position.y=0;
+		BH2.position.y=0;
+		BH3.position.y=0;
+		
+		CollsUp=true;
+		}
+
+		if(arrow.position.z<=btn5.position.z+.3 &&
+				arrow.position.z>=btn5.position.z-.3 &&
+				arrow.position.x<=btn5.position.x+.3  &&
+				arrow.position.x>=btn5.position.x-.3){
+				bridge5.name="Bup";		
+				}
+				if(bridge5.name=="Bup"){
+					if(bridge5.position.x<=1){
+						bridge5.position.x+=.05;
+						BH2.position.x+=.05;
+					}
+					if(bridge5.position.x>=1){
+						BH2.position.y=-1;
+					}
+				}
+
+				if(arrow.position.z<=btn6.position.z+.3 &&
+				arrow.position.z>=btn6.position.z-.3 &&
+				arrow.position.x<=btn6.position.x+.3  &&
+				arrow.position.x>=btn6.position.x-.3){
+				bridge3.name="Bup";
+				
+				}
+				if(bridge3.name=="Bup"){
+					if(bridge3.position.z>=0){
+						bridge3.position.z-=.05;
+						BH3.position.z-=.05;
+					}
+
+					if(bridge3.position.z<=0){
+						BH3.position.y=-1;
+
+					}
+				}
+
+				if(arrow.position.z<=btn4.position.z+.3 &&
+				arrow.position.z>=btn4.position.z-.3 &&
+				arrow.position.x<=btn4.position.x+.3  &&
+				arrow.position.x>=btn4.position.x-.3){
+				bridge4.name="Bup";
+				
+				}
+				if(bridge4.name=="Bup"){
+					if(bridge4.position.z>=0){
+						bridge4.position.z-=.05;
+						BH1.position.z-=.05;
+					}
+
+					if(bridge4.position.z<=0){
+						BH1.position.y=-1;
+						puzzleSolved=true;
+					}
+				}
+				
+				if(puzzleSolved){
+					HintTime=0;
+					HintHide();
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+	if(Clvl==7){
+				SpawnSkulls();
+
+				if(Skulls_1[0].position.y<0){
+					puzzleSolved=true;
+				}
+
+				if(puzzleSolved){
+					HintTime=0;
+					HintHide();
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+	if(Clvl==8){
+
+		SpawnDragon();
+		
+
+		if(Dragons_1[0].position.y<0){
+					puzzleSolved=true;
+					Uwall.position.z=-4.7;
+				}else{
+					SpawnFireBalls();
+					Uwall.position.z=0;
+				}
+				
+				if(puzzleSolved){
+					HintTime=0;
+					HintHide();
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+//-------------------------------------
+			//Colision
+			for(var i=0;i<arrow.rayos.length;i++){
+				//(posicion de donde sale, arreglo de vectores de rayos)
+				raycaster.set(arrow.position,arrow.rayos[i]);
+
+				var Colisiones=raycaster.intersectObjects(objetosConColision, true);
+
+				if(Colisiones.length>0 && Colisiones[0].distance<.3){
+					//checar que el arreglo no esta vacio
+					
+					if(CantWalk!=newMove){
+					arrow.translateZ(-.2);
+					CantWalk=newMove;
+					}
+					
+
+				}
+
+			}
+			//---------------
+
+
+		}
+	}
+
+}
+
+//--------------------------------------------------------
+function CoopGame(){
+if(play2){
+		requestAnimationFrame(render);
+		deltaTime = clock.getDelta();	
+
+
+		//-----------------Particle Test--------------------
+			//parts.push(new ExplodeAnimation(
+			//				objects[i].position.x,
+			//				objects[i].position.y,
+			//				objects[i].position.z,
+			//				1
+			//				));
+
+			//parts.forEach(updateParticle);
+		//-------------------------------------------------
+
+		var arrow=scene.getObjectByName("Char1");
+		var arrow2=scene.getObjectByName("Char2");
+		arrow2.position.y=.4;
+
+		var yaw = 0;
+		var yaw2 = 0;
+		var forward = 0;
+		var forward2 = 0;
+		if (keys["A"]) {
+			if(CantWalk!="L"){
+				forward = -5;
+			newMove="L";
+			CantWalk="";
+			arrow.rayos=[new THREE.Vector3(-1,0,0)];
+
+			if(arrow.Anim.length>0){
+				
+				for(var i=0;i<arrow.Anim.length;i++){
+					arrow.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}	
+
+		} else if (keys["D"]) {
+			if(CantWalk!="R"){
+				forward = -5;
+			newMove="R";
+			CantWalk="";
+			arrow.rayos=[new THREE.Vector3(1,0,0)];
+
+			if(arrow.Anim.length>0){
+				
+				for(var i=0;i<arrow.Anim.length;i++){
+					arrow.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}
+
+		}
+		if (keys["W"]) {
+			if(CantWalk!="U"){
+				forward = -5;
+			newMove="U";
+			CantWalk="";
+			arrow.rayos=[new THREE.Vector3(0,0,-1)];
+
+			if(arrow.Anim.length>0){
+				
+				for(var i=0;i<arrow.Anim.length;i++){
+					arrow.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}	
+		} else if (keys["S"]) {
+			if(CantWalk!="D"){
+				forward = -5;
+			newMove="D";
+			CantWalk="";
+			arrow.rayos=[new THREE.Vector3(0,0,1)];
+
+			if(arrow.Anim.length>0){
+				
+				for(var i=0;i<arrow.Anim.length;i++){
+					arrow.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}
+		}
+
+		if (keys["J"]) {
+			if(CantWalk2!="L"){
+				forward2 = -5;
+			newMove2="L";
+			CantWalk2="";
+			arrow2.rayos=[new THREE.Vector3(-1,0,0)];
+
+			if(arrow2.Anim.length>0){
+				
+				for(var i=0;i<arrow2.Anim.length;i++){
+					arrow2.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}	
+
+		} else if (keys["L"]) {
+			if(CantWalk2!="R"){
+				forward2 = -5;
+			newMove2="R";
+			CantWalk2="";
+			arrow2.rayos=[new THREE.Vector3(1,0,0)];
+
+			if(arrow2.Anim.length>0){
+				
+				for(var i=0;i<arrow2.Anim.length;i++){
+					arrow2.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}
+
+		}
+		if (keys["I"]) {
+			if(CantWalk2!="U"){
+				forward2 = -5;
+			newMove2="U";
+			CantWalk2="";
+			arrow2.rayos=[new THREE.Vector3(0,0,-1)];
+
+			if(arrow2.Anim.length>0){
+				
+				for(var i=0;i<arrow2.Anim.length;i++){
+					arrow2.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}	
+		} else if (keys["K"]) {
+			if(CantWalk2!="D"){
+				forward2 = -5;
+			newMove2="D";
+			CantWalk2="";
+			arrow2.rayos=[new THREE.Vector3(0,0,1)];
+
+			if(arrow2.Anim.length>0){
+				
+				for(var i=0;i<arrow2.Anim.length;i++){
+					arrow2.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+			}
+		}
+
+		if (keys["V"]) {
+			if(CanShoot){
+				if(Arrcount!=3){
+
+					if(ShootSound.isPlaying){
+						ShootSound.stop();
+					}
+					ShootSound.play();
+				projectil.position.x=arrow.position.x;
+				projectil.position.y=arrow.position.y;
+				projectil.position.z=arrow.position.z;
+
+					if(newMove=="U"){
+					projectil.rotation.y=THREE.Math.degToRad( 0 );
+					}
+					if(newMove=="D"){
+					projectil.rotation.y=THREE.Math.degToRad( 180 );
+					}
+					if(newMove=="R"){
+					projectil.rotation.y=THREE.Math.degToRad( 90 );
+					}
+					if(newMove=="L"){
+					projectil.rotation.y=THREE.Math.degToRad( 270 );
+					}	
+				Arrows1.push(projectil.clone());
+				Arrcount++;
+				}
+				CanShoot=false;
+			}
+		
+		}else{CanShoot=true;}
+
+		if (keys["M"]) {
+			if(CanShoot2){
+				if(Arrcount2!=3){
+
+					if(ShootSound2.isPlaying){
+						ShootSound2.stop();
+					}
+					ShootSound2.play();
+
+				projectil.position.x=arrow2.position.x;
+				projectil.position.y=arrow2.position.y;
+				projectil.position.z=arrow2.position.z;
+
+					if(newMove2=="U"){
+					projectil.rotation.y=THREE.Math.degToRad( 0 );
+					}
+					if(newMove2=="D"){
+					projectil.rotation.y=THREE.Math.degToRad( 180 );
+					}
+					if(newMove2=="R"){
+					projectil.rotation.y=THREE.Math.degToRad( 90 );
+					}
+					if(newMove2=="L"){
+					projectil.rotation.y=THREE.Math.degToRad( 270 );
+					}	
+				Arrows2.push(projectil.clone());
+				Arrcount2++;
+				}
+				CanShoot2=false;
+			}
+		
+		}else{CanShoot2=true;}
+
+		if(Arrows1.length>0){
+		Arrows1.forEach(ShootFE);
+		}
+		if(Arrows2.length>0){
+		Arrows2.forEach(ShootFE2);
+		}
+		//---------------Seconds
+		//deltaTimeSum+=deltaTime;
+		//document.getElementById('pos2').value=Math.floor(deltaTimeSum);
+
+		if (keys["P"]) {
+			btnPause();
+		}
+
+		if (isWorldReady[0] && isWorldReady[1]) {
+
+			if(colorChange){
+    		particleDelta+=0.05;
+    		if(particleDelta>=1.0){
+    			colorChange=false;
+    		}
+    	}else{
+    		particleDelta-=0.05;
+    		if(particleDelta<=0.0){
+    		colorChange=true;	
+    		}
+    	}
+
+
+			if(CHealth<=0){
+				LoseScreen();
+			}
+			
+			var door=scene.getObjectByName("door");
+			
+			//document.getElementById('pos3').value=Clvl;
+			//document.getElementById('pos').value=
+			//document.getElementById('pos2').value=
+			//document.getElementById('pos').value=arrow.position.x;
+			//document.getElementById('pos2').value=arrow.position.z;
+
+	
+
+			if(arrow.position.z<=-3.4&&
+				arrow.position.z>=-3.9&&
+				arrow.position.x<=.7 &&
+				arrow.position.x>=-.7
+				||
+				arrow2.position.z<=-3.4&&
+				arrow2.position.z>=-3.9&&
+				arrow2.position.x<=.7 &&
+				arrow2.position.x>=-.7){
+				Flashing=false;
+				FlashTime=0;
+
+			if(Clvl==8){
+			WinScreen();
+			}	else{
+
+			scene.remove(LVLC[Clvl]);
+			Clvl++;
+			scene.add(LVLC[Clvl]);
+			puzzleSolved=false;
+			door.position.y=0;
+			arrow.position.z=3.5
+			arrow2.position.z=3.5
+			arrow.position.x=-.5
+			arrow2.position.x=.5
+
+			if(Clvl==2){
+			torch2[0].name="NO";
+			torch2[1].name="NO";
+			torch2[2].name="NO";
+			torch2[3].name="NO";
+			}
+
+			if(Clvl==3){
+			parts.forEach(delParticle);
+			var H2=scene.getObjectByName("H2");
+			H2.scale.x=4;
+			H2.scale.z=2;
+			H2.position.x=-3;
+
+			var H1=scene.getObjectByName("H1");
+			H1.scale.x=4;
+			H1.scale.z=2;
+			H1.position.x=3;
+
+
+
+			}
+
+			if(Clvl==4){
+			bridge1_2.name="Bdown";
+			bridge1_2.position.z=2.9;
+			var BH1=scene.getObjectByName("BH1");
+			var H2=scene.getObjectByName("H2");
+			BH1.position.z=0;			
+			}
+
+			
+
+			if(Clvl==5){
+			torch2[4].name="NO";
+			torch2[5].name="NO";
+			torch2[6].name="NO";
+			}
+
+			if(Clvl==6){
+			parts.forEach(delParticle);
+			bridge1.name="Bdown";
+			bridge1.position.z=2.9;
+			bridge2.name="Bdown";
+			bridge2.position.x=-1;
+			var BH2=scene.getObjectByName("BH2");
+			BH2.position.x=1.3;
+
+			var BH4=scene.getObjectByName("BH4");
+			BH4.position.z=0;
+			var BH3=scene.getObjectByName("BH3");
+			BH3.position.z=0;
+			}
+
+			CollsUp=false;
+			var H1=scene.getObjectByName("H1");
+			var H2=scene.getObjectByName("H2");
+			var H3=scene.getObjectByName("H3");
+			var H4=scene.getObjectByName("H4");
+			var BH1=scene.getObjectByName("BH1");
+			var H5=scene.getObjectByName("H5");
+			var BH5=scene.getObjectByName("BH5");
+
+			var BH2=scene.getObjectByName("BH2");
+			var BH3=scene.getObjectByName("BH3");
+			var BH4=scene.getObjectByName("BH4");
+		
+			H1.position.y=-1;
+			H2.position.y=-1;
+			H3.position.y=-1;
+			H4.position.y=-1;
+			H5.position.y=-1;
+			BH1.position.y=-1;
+			BH2.position.y=-1;
+			BH3.position.y=-1;
+			BH4.position.y=-1;
+			BH5.position.y=-1;
+
+			}
+			}
+//------------------------------------------
+			arrow.translateZ(-1*forward * deltaTime);
+			arrow2.translateZ(-1*forward2 * deltaTime);
+
+
+			getEnemies2();
+			
+
+			Blobs_2.forEach(BlobIA2);
+			Bats_2.forEach(BatIA2);
+			Skulls_2.forEach(SkullIA2);
+			Dragons_2.forEach(DragonIA2);
+
+			FireBalls_2.forEach(FireBallIA2);
+
+			if(oldMove!=newMove){
+			if(newMove=="U"){
+			arrow.rotation.y=THREE.Math.degToRad( 180 );
+			}
+			if(newMove=="D"){
+			arrow.rotation.y=THREE.Math.degToRad( 0 );
+			}
+			if(newMove=="L"){
+			arrow.rotation.y=THREE.Math.degToRad( 270 );
+			}
+			if(newMove=="R"){
+			arrow.rotation.y=THREE.Math.degToRad( 90 );
+			}
+			oldMove=newMove;
+			}
+
+			if(oldMove2!=newMove2){
+			if(newMove2=="U"){
+			arrow2.rotation.y=THREE.Math.degToRad( 180 );
+			}
+			if(newMove2=="D"){
+			arrow2.rotation.y=THREE.Math.degToRad( 0 );
+			}
+			if(newMove2=="L"){
+			arrow2.rotation.y=THREE.Math.degToRad( 270 );
+			}
+			if(newMove2=="R"){
+			arrow2.rotation.y=THREE.Math.degToRad( 90 );
+			}
+			oldMove2=newMove2;
+			}
+
+//-------------------------Puzzles------------------
+	if(Clvl==0){
+				var btn1=scene.getObjectByName("btn1");
+				var btn2=scene.getObjectByName("btn2");
+				if(arrow.position.z<=btn1.position.z+.3 &&
+				arrow.position.z>=btn1.position.z-.3 &&
+				arrow.position.x<=btn1.position.x+.3  &&
+				arrow.position.x>=btn1.position.x-.3
+				&&
+				arrow2.position.z<=btn2.position.z+.3 &&
+				arrow2.position.z>=btn2.position.z-.3 &&
+				arrow2.position.x<=btn2.position.x+.3  &&
+				arrow2.position.x>=btn2.position.x-.3
+				){
+				puzzleSolved=true;
+				}
+				
+				if(puzzleSolved){
+					Flash();
+					StartMusic();
+					if(door.position.y>=-1.4){
+						timerStart=true;
+						door.position.y-=.05;
+					}
+				}
+			}
+
+	if(Clvl==1){
+
+		SpawnBats2();
+
+				if(Bats_2[0].position.y<0
+					&&Bats_2[1].position.y<0
+					&&Bats_2[2].position.y<0
+					&&Bats_2[3].position.y<0
+					&&Bats_2[4].position.y<0
+					){
+					puzzleSolved=true;
+				}
+				
+				if(puzzleSolved){
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+
+	if(Clvl==2){
+
+				var btn1=scene.getObjectByName("btn3");
+				var btn2=scene.getObjectByName("btn4");
+				if(arrow.position.z<=btn1.position.z+.3 &&
+				arrow.position.z>=btn1.position.z-.3 &&
+				arrow.position.x<=btn1.position.x+.3  &&
+				arrow.position.x>=btn1.position.x-.3)
+				{
+					torch2[3].name="YES";
+				}else{
+					torch2[3].name="NO";
+				}
+				if(	arrow2.position.z<=btn2.position.z+.3 &&
+				arrow2.position.z>=btn2.position.z-.3 &&
+				arrow2.position.x<=btn2.position.x+.3  &&
+				arrow2.position.x>=btn2.position.x-.3)
+				{
+					torch2[0].name="YES";
+				}else{
+					torch2[0].name="NO";
+				}
+		
+			if(Arrows1.length>0){
+			for (var x =0; x <= Arrows1.length-1; x++) {
+				for (var y =0; y <= torch2.length-1; y++) {
+				if(Arrows1[x]!=null){
+
+				if(Arrows1[x].position.z<=torch2[y].position.z+.3 &&
+				Arrows1[x].position.z>=torch2[y].position.z-.3 &&
+				Arrows1[x].position.x<=torch2[y].position.x+.3  &&
+				Arrows1[x].position.x>=torch2[y].position.x-.3)
+				{
+					if(Arrows1[x].name!="YES" &&torch2[y].name=="YES")
+						{
+							Arrows1[x].name="YES";
+							
+						}else{
+					if(Arrows1[x].name=="YES" &&torch2[y].name=="NO")
+						{
+							torch2[y].name="YES";
+							
+						}
+						}
+				}
+						}
+				}}
+			 }
+
+			 if(Arrows2.length>0){
+			for (var x =0; x <= Arrows2.length-1; x++) {
+				for (var y =0; y <= torch2.length-1; y++) {
+				if(Arrows2[x]!=null){
+
+				if(Arrows2[x].position.z<=torch2[y].position.z+.3 &&
+				Arrows2[x].position.z>=torch2[y].position.z-.3 &&
+				Arrows2[x].position.x<=torch2[y].position.x+.3  &&
+				Arrows2[x].position.x>=torch2[y].position.x-.3)
+				{
+					if(Arrows2[x].name!="YES" &&torch2[y].name=="YES")
+						{
+							Arrows2[x].name="YES";
+							
+						}else{
+					if(Arrows2[x].name=="YES" &&torch2[y].name=="NO")
+						{
+							torch2[y].name="YES";
+							
+						}
+						}
+				}
+						}
+				}}
+			 }
+
+		//---------------Particulas por segundo
+		Psecs+=deltaTime;
+
+		if(torch2[0].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch2[0].position.x,
+							torch2[0].position.y,
+							torch2[0].position.z,
+							1
+							));
+		}}
+		
+		if(torch2[1].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch2[1].position.x,
+							torch2[1].position.y,
+							torch2[1].position.z,
+							1
+							));
+		}}
+
+		if(torch2[2].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch2[2].position.x,
+							torch2[2].position.y,
+							torch2[2].position.z,
+							1
+							));
+		}}
+		if(torch2[3].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch2[3].position.x,
+							torch2[3].position.y,
+							torch2[3].position.z,
+							1
+							));
+		}}
+
+		
+		if(Math.floor(Psecs)>=.05 ){
+		Psecs=0;		
+		}
+		
+		parts.forEach(updateParticle);
+
+		
+		//-------------------------
+
+		if(torch2[1].name=="YES"&&
+		   torch2[2].name=="YES"){
+			puzzleSolved=true;
+		}
+				
+				if(puzzleSolved){
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+
+	if(Clvl==3){
+		var H1=scene.getObjectByName("H1");
+		var H2=scene.getObjectByName("H2");
+		var BH1=scene.getObjectByName("BH1");
+		var Press=0;
+		if(CollsUp==false){
+		H1.scale.z=2;	
+		H1.position.z=0;
+		H1.position.x=3;
+		H1.position.y=0;
+		H2.position.y=0;
+		BH1.position.y=0;
+		CollsUp=true;
+		}
+
+		var btn1=scene.getObjectByName("btn5");
+		var btn2=scene.getObjectByName("btn7");
+		var btn3=scene.getObjectByName("btn6");
+
+				if(arrow.position.z<=btn1.position.z+.3 &&
+				arrow.position.z>=btn1.position.z-.3 &&
+				arrow.position.x<=btn1.position.x+.3  &&
+				arrow.position.x>=btn1.position.x-.3){
+				bridge1_2.name="Bup";
+				Press=1;
+				
+				}else{
+					if(Press!=2)
+					bridge1_2.name="Bdown";
+				}
+
+				if(arrow.position.z<=btn3.position.z+.3 &&
+				arrow.position.z>=btn3.position.z-.3 &&
+				arrow.position.x<=btn3.position.x+.3  &&
+				arrow.position.x>=btn3.position.x-.3){
+				puzzleSolved=true;
+				
+				}
+
+				if(arrow2.position.z<=btn2.position.z+.3 &&
+				arrow2.position.z>=btn2.position.z-.3 &&
+				arrow2.position.x<=btn2.position.x+.3  &&
+				arrow2.position.x>=btn2.position.x-.3){
+				bridge1_2.name="Bup";
+				Press=2;
+				
+				}else{
+					if(Press!=1)
+					bridge1_2.name="Bdown";
+				}
+
+				if(bridge1_2.name=="Bup"){
+					if(bridge1_2.position.z>=0){
+						bridge1_2.position.z-=.05;
+						BH1.position.z-=.05;
+					}
+
+					if(bridge1_2.position.z<=0){
+						BH1.position.y=-1;
+					}
+				}else{
+
+					if(bridge1_2.position.z<=2.85){
+						bridge1_2.position.z+=.05;
+						BH1.position.z+=.05;
+					}
+
+					if(bridge1_2.position.z>=0){
+						BH1.position.y=0;
+					}
+
+				}
+
+
+
+				if(puzzleSolved){
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+
+	if(Clvl==4){
+
+		SpawnBlobs2();
+
+				if(Blobs_2[0].position.y<0
+					&&Blobs_2[1].position.y<0
+					&&Blobs_2[2].position.y<0
+					&&Blobs_2[3].position.y<0
+					&&Blobs_2[4].position.y<0
+					&&Blobs_2[5].position.y<0
+					&&Blobs_2[6].position.y<0
+					&&Blobs_2[7].position.y<0){
+					puzzleSolved=true;
+				}
+
+				if(puzzleSolved){
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+
+	if(Clvl==5){
+
+		if(Arrows1.length>0){
+			for (var x =0; x <= Arrows1.length-1; x++) {
+				for (var y =4; y <= torch2.length-1; y++) {
+				if(Arrows1[x]!=null){
+
+				if(Arrows1[x].position.z<=torch2[y].position.z+.3 &&
+				Arrows1[x].position.z>=torch2[y].position.z-.3 &&
+				Arrows1[x].position.x<=torch2[y].position.x+.3  &&
+				Arrows1[x].position.x>=torch2[y].position.x-.3)
+				{
+					if(Arrows1[x].name!="YES" &&torch2[y].name=="YES")
+						{
+							Arrows1[x].name="YES";
+							
+						}else{
+					if(Arrows1[x].name=="YES" &&torch2[y].name=="NO")
+						{
+							torch2[y].name="YES";
+							
+						}
+						}
+				}
+						}
+				}}
+			 }
+
+
+			 //-------------------------------------------
+			 if(Arrows2.length>0){
+			for (var x =0; x <= Arrows2.length-1; x++) {
+				for (var y =4; y <= torch2.length-1; y++) {
+				if(Arrows2[x]!=null){
+
+				if(Arrows2[x].position.z<=torch2[y].position.z+.3 &&
+				Arrows2[x].position.z>=torch2[y].position.z-.3 &&
+				Arrows2[x].position.x<=torch2[y].position.x+.3  &&
+				Arrows2[x].position.x>=torch2[y].position.x-.3)
+				{
+					if(Arrows2[x].name!="YES" &&torch2[y].name=="YES")
+						{
+							Arrows2[x].name="YES";
+							
+						}else{
+					if(Arrows2[x].name=="YES" &&torch2[y].name=="NO")
+						{
+							torch2[y].name="YES";
+							
+						}
+						}
+				}
+						}
+				}}
+			 }
+			 //-------------------------------------------
+
+
+			 Psecs+=deltaTime;
+
+
+		if(torch2[5].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch2[5].position.x,
+							torch2[5].position.y,
+							torch2[5].position.z,
+							1
+							));
+		}}
+		if(torch2[6].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch2[6].position.x,
+							torch2[6].position.y,
+							torch2[6].position.z,
+							1
+							));
+		}}
+
+		if(torch2[4].name=="YES"){
+		if(Math.floor(Psecs)>=.05 ){
+		
+		parts.push(new ExplodeAnimation(
+							torch2[4].position.x,
+							torch2[4].position.y,
+							torch2[4].position.z,
+							1
+							));
+		}}
+
+		if(Math.floor(Psecs)>=.05 ){
+		Psecs=0;
+		}
+
+		parts.forEach(updateParticle);
+		//-------------------------------------------
+
+		var btn1=scene.getObjectByName("btn8");
+		var btn2=scene.getObjectByName("btn9");
+		var H1=scene.getObjectByName("H1");
+		var H3=scene.getObjectByName("H3");
+		var BH2=scene.getObjectByName("BH2");
+		var BH3=scene.getObjectByName("BH3");
+		var BH4=scene.getObjectByName("BH4");
+		if(CollsUp==false){
+		H1.scale.z=2;
+		H1.scale.x=6;
+		H1.position.x=0;
+		H1.position.z=0;
+		H1.position.y=0;
+		H3.position.y=0;
+
+		BH2.position.y=0;
+		BH3.position.y=0;
+		BH4.position.y=0;
+		CollsUp=true;
+		}
+				if(arrow.position.z<=btn1.position.z+.3 &&
+				arrow.position.z>=btn1.position.z-.3 &&
+				arrow.position.x<=btn1.position.x+.3  &&
+				arrow.position.x>=btn1.position.x-.3){
+				bridge5_2.name="Bup";		
+				}else{bridge5_2.name="Bdown";}
+
+
+				if(	arrow2.position.z<=btn2.position.z+.3 &&
+				arrow2.position.z>=btn2.position.z-.3 &&
+				arrow2.position.x<=btn2.position.x+.3  &&
+				arrow2.position.x>=btn2.position.x-.3)
+				{
+					torch2[4].name="YES";
+				}else{
+					torch2[4].name="NO";
+				}
+
+				if(bridge5_2.name=="Bup"){
+					if(bridge5_2.position.x<=1){
+						bridge5_2.position.x+=.05;
+						BH2.position.x+=.05;
+					}
+					if(bridge5_2.position.x>=1){
+						BH2.position.y=-1;
+					}
+				}else{
+					if(bridge5_2.position.x>=-.9){
+						bridge5_2.position.x-=.05;
+						BH2.position.x-=.05;
+					}
+
+					if(bridge5_2.position.x>=0){
+						BH2.position.y=0;
+					}
+
+				}
+
+				if(torch2[5].name=="YES"&&
+		   	  	   torch2[6].name=="YES"){
+				   puzzleSolved=true;
+				bridge3_2.name="Bup";
+				bridge6_2.name="Bup";
+				   }
+
+				   	if(bridge3_2.name=="Bup"){
+					if(bridge3_2.position.z>=0){
+						bridge3_2.position.z-=.05;
+						BH3.position.z-=.05;
+					}
+
+					if(bridge3_2.position.z<=0){
+						BH3.position.y=-1;
+
+					}
+				}
+
+				  	if(bridge6_2.name=="Bup"){
+					if(bridge6_2.position.z>=0){
+						bridge6_2.position.z-=.05;
+						BH4.position.z-=.05;
+					}
+
+					if(bridge6_2.position.z<=0){
+						BH4.position.y=-1;
+
+					}
+				}
+
+				if(puzzleSolved){
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+			
+	if(Clvl==6){
+
+		var btn1=scene.getObjectByName("btn10");
+		var btn2=scene.getObjectByName("btn11");
+		var btn3=scene.getObjectByName("btn12");
+		var btn4=scene.getObjectByName("btn13");
+
+		var H1=scene.getObjectByName("H1");
+		var H2=scene.getObjectByName("H2");
+		var H3=scene.getObjectByName("H3");
+		var H5=scene.getObjectByName("H5");
+		
+		
+		var BH2=scene.getObjectByName("BH2");
+		var BH3=scene.getObjectByName("BH3");
+		var BH4=scene.getObjectByName("BH4");
+		var BH5=scene.getObjectByName("BH5");
+		if(CollsUp==false){
+		H1.position.y=0;
+		H1.position.z=0;
+		H1.scale.z=2;
+		H2.position.y=0;
+		H2.position.x=-1.8;
+		H2.scale.x=-2.5;
+		H3.position.y=0;
+		H5.position.y=0;
+		
+		
+		BH2.position.y=0;
+		BH3.position.y=0;
+		BH4.position.y=0;
+		BH5.position.y=0;
+		
+		CollsUp=true;
+		}
+
+		if(arrow.position.z<=btn1.position.z+.3 &&
+				arrow.position.z>=btn1.position.z-.3 &&
+				arrow.position.x<=btn1.position.x+.3  &&
+				arrow.position.x>=btn1.position.x-.3){
+				bridge4_2.name="Bup";		
+				}else{
+					bridge4_2.name="Bdown";		
+				}
+				if(bridge4_2.name=="Bup"){
+					if(bridge4_2.position.x<=1){
+						bridge4_2.position.x+=.05;
+						BH2.position.x+=.05;
+					}
+					if(bridge4_2.position.x>=1){
+						BH2.position.y=-1;
+					}
+				}else{
+					if(bridge4_2.position.x>=-.9){
+						bridge4_2.position.x-=.05;
+						BH2.position.x-=.05;
+					}
+
+					if(bridge4_2.position.x>=0){
+						BH2.position.y=0;
+					}
+
+				}
+
+				if(arrow.position.z<=btn3.position.z+.3 &&
+				arrow.position.z>=btn3.position.z-.3 &&
+				arrow.position.x<=btn3.position.x+.3  &&
+				arrow.position.x>=btn3.position.x-.3){
+				bridge7_2.name="Bup";
+				
+				}
+				else{
+					bridge7_2.name="Bdown";		
+				}
+
+				if(bridge7_2.name=="Bup"){
+					if(bridge7_2.position.z>=0){
+						bridge7_2.position.z-=.05;
+						BH4.position.z-=.05;
+					}
+
+					if(bridge7_2.position.z<=0){
+						BH4.position.y=-1;
+
+					}
+				}else{
+
+					if(bridge7_2.position.z<=2.85){
+						bridge7_2.position.z+=.05;
+						BH4.position.z+=.05;
+					}
+
+					if(bridge7_2.position.z>=0){
+						BH4.position.y=0;
+					}
+
+				}
+
+
+				if(arrow2.position.z<=btn2.position.z+.3 &&
+				arrow2.position.z>=btn2.position.z-.3 &&
+				arrow2.position.x<=btn2.position.x+.3  &&
+				arrow2.position.x>=btn2.position.x-.3){
+				bridge2_2.name="Bup";
+				
+				}else{
+					bridge2_2.name="Bdown";		
+				}
+				if(bridge2_2.name=="Bup"){
+					if(bridge2_2.position.z>=0){
+						bridge2_2.position.z-=.05;
+						BH3.position.z-=.05;
+					}
+
+					if(bridge2_2.position.z<=0){
+						BH3.position.y=-1;
+						
+					}
+				}else{
+
+					if(bridge2_2.position.z<=2.85){
+						bridge2_2.position.z+=.05;
+						BH3.position.z+=.05;
+					}
+
+					if(bridge2_2.position.z>=0){
+						BH3.position.y=0;
+					}
+
+				}
+
+					if(arrow2.position.z<=btn4.position.z+.3 &&
+				arrow2.position.z>=btn4.position.z-.3 &&
+				arrow2.position.x<=btn4.position.x+.3  &&
+				arrow2.position.x>=btn4.position.x-.3){
+				bridge8_2.name="Bup";
+				puzzleSolved=true;
+				
+				}
+
+				if(bridge8_2.name=="Bup"){
+					if(bridge8_2.position.x<=-.5){
+						bridge8_2.position.x+=.05;
+						BH5.position.x+=.05;
+					}
+					if(bridge8_2.position.x>=-1.3){
+						BH5.position.y=-1;
+					}
+				}
+				
+				if(puzzleSolved){
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+	if(Clvl==7){
+
+		SpawnSkulls2();
+
+				if(Skulls_2[0].position.y<0){
+					puzzleSolved=true;
+				}
+				
+				if(puzzleSolved){
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+	if(Clvl==8){
+
+		SpawnDragon2();
+		
+
+		if(Dragons_2[0].position.y<0){
+					puzzleSolved=true;
+					Uwall.position.z=-4.7;
+				}else{
+					SpawnFireBalls2();
+					Uwall.position.z=0;
+				}
+				
+				if(puzzleSolved){
+					Flash();
+					if(door.position.y>=-1.4){
+						door.position.y-=.05;
+					}
+				}
+			}
+//-------------------------------------
+			//Colision
+			for(var i=0;i<arrow.rayos.length;i++){
+				//(posicion de donde sale, arreglo de vectores de rayos)
+				raycaster.set(arrow.position,arrow.rayos[i]);
+
+				var Colisiones=raycaster.intersectObjects(objetosConColision, true);
+
+				if(Colisiones.length>0 && Colisiones[0].distance<.3){
+					//checar que el arreglo no esta vacio
+					
+					//if(CantWalk!=newMove){
+					arrow.translateZ(-.2);
+					//CantWalk=newMove;}
+					
+
+				}
+
+			}
+			//---------------
+			for(var i=0;i<arrow2.rayos.length;i++){
+				//(posicion de donde sale, arreglo de vectores de rayos)
+				raycaster.set(arrow2.position,arrow2.rayos[i]);
+
+				var Colisiones=raycaster.intersectObjects(objetosConColision, true);
+
+				if(Colisiones.length>0 && Colisiones[0].distance<.3){
+					//checar que el arreglo no esta vacio
+					
+					//if(CantWalk2!=newMove2){
+					arrow2.translateZ(-.2);
+					//CantWalk2=newMove2;}
+					
+
+				}
+
+			}
+//-------------------------------------------------------------------
+
+
+		}
+	}
+
+}
+
+//-----------------------HTML Botones-------------------
+function btnSolo(){
+	
+	document.getElementById("Menu").style.visibility=
+											"hidden";
+	document.getElementById("Portada").style.visibility=
+											"hidden";
+gameMode="Solo";
+
+
+
+document.getElementById("SoloMenu").style.visibility=											"visible";
+document.getElementById("Control1").style.visibility=											"visible";
+}
+
+function btnCoop(){
+	
+	document.getElementById("Menu").style.visibility=
+											"hidden";
+	document.getElementById("Portada").style.visibility=
+											"hidden";
+
+gameMode="Coop";
+
+
+	document.getElementById("CoopMenu").style.visibility=										"visible";
+	document.getElementById("Control2").style.visibility=											"visible";
+}
+
+function btnJugar(){
+	if(Jugando==false){
+		Jugando=true;
+	document.getElementById("SoloMenu").style.visibility=											"hidden";
+	document.getElementById("Control1").style.visibility=											"hidden";
+
+	document.getElementById("TimerDiv").style.visibility=											"visible";
+	document.getElementById("HintDiv").style.visibility=
+	"visible";
+	document.getElementById("Health").style.visibility=
+	"visible";
+	YourTime[0]=-1;
+	YourTime[1]=0;
+	getRanksSolo();
+CHealth=100;
+document.getElementById("HealthProg").style.width =""+ CHealth+"%";
+
+
+$("#timertext").text("02:00");	
+Minutos=2;
+Segundos=0;
+deltaTimeSum=0;
+play=true;
+scene.add(LVLS[0]);
+render();
+
+}
+}
+
+function btnJugar2(){
+	if(Jugando2==false){
+		Jugando2=true;
+	document.getElementById("CoopMenu").style.visibility=											"hidden";
+	document.getElementById("Control2").style.visibility=											"hidden";
+	document.getElementById("TimerDiv").style.visibility=											"visible";
+	document.getElementById("Health").style.visibility=
+	"visible";
+YourTime[0]=-1;
+YourTime[1]=0;
+getRanksCoop();
+CHealth=200;
+document.getElementById("HealthProg").style.width =""+ CHealth+"px";
+
+$("#timertext").text("3:00");	
+play2=true;
+Minutos=3;
+Segundos=0;
+deltaTimeSum=0;
+scene.add(LVLC[0]);
+render();
+}
+}
+
+function btnSeguir(){
+document.getElementById("PauseMenu").style.visibility=											"hidden";
+if(playOnce){
+Music.play();
+}
+
+//document.getElementById('pos3').value=Music.isPlaying;
+if(gameMode=="Solo"){
+play=true;
+}
+if(gameMode=="Coop"){
+play2=true;
+}
+
+render();
+}
+
+function btnPause(){
+document.getElementById("PauseMenu").style.visibility=											"visible";
+
+if(playOnce){
+Music.pause();
+}
+
+
+
+if(gameMode=="Solo"){
+play=false;
+}
+if(gameMode=="Coop"){
+play2=false;
+}
+
+}
+
+function LoseScreen(){
+document.getElementById("LoseMenu").style.visibility=											"visible";
+	if(Music.isPlaying){
+Music.stop();
+}
+LoseS.play();
+OriginalPass.renderToScreen=false;
+pass2.renderToScreen=true;
+
+if(gameMode=="Solo"){
+play=false;
+}
+if(gameMode=="Coop"){
+play2=false;
+}
+
+}
+
+function WinScreen(){
+document.getElementById("WinMenu").style.visibility=											"visible";
+	if(Music.isPlaying){
+Music.stop();
+}
+
+WinS.play();
+
+YourTime[1]+=1;
+
+if(YourTime[1]>=60){
+	YourTime[0]+=1;
+	YourTime[1]=0;
+}
+
+
+
+
+if(YourTime[1]>=10){
+	document.getElementById("Scoretext").innerHTML ="0"+ YourTime[0]+":"+YourTime[1];
+}
+else{
+	document.getElementById("Scoretext").innerHTML = "0"+YourTime[0]+":0"+YourTime[1];
+}
+
+if(gameMode=="Solo"){
+play=false;
+}
+if(gameMode=="Coop"){
+play2=false;
+}
+
+}
+
+function btnSalir1(){
+	document.getElementById("CoopMenu").style.visibility=										"hidden";
+	document.getElementById("SoloMenu").style.visibility=										"hidden";
+	document.getElementById("PauseMenu").style.visibility=										"hidden";
+	document.getElementById("Control2").style.visibility=											"hidden";
+	document.getElementById("Control1").style.visibility=											"hidden";
+	document.getElementById("TimerDiv").style.visibility=											"hidden";
+	document.getElementById("HintDiv").style.visibility=											"hidden";
+	document.getElementById("HintDiv2").style.visibility=											"hidden";
+	document.getElementById("LoseMenu").style.visibility=											"hidden";
+	document.getElementById("WinMenu").style.visibility=											"hidden";
+	document.getElementById("Health").style.visibility=
+	"hidden";
+Music.play();	
+	if(Music.isPlaying){
+Music.stop();
+}
+playOnce=false;
+Uwall.position.z=-4.7;
+RestartEnemies();
+RestartEnemies2();
+
+	pass1.renderToScreen=false;
+	pass2.renderToScreen=false;
+		OriginalPass.renderToScreen=true;
+		Flashing=false;
+		FlashTime=0;
+			scene.remove(LVLS[Clvl]);
+			scene.remove(LVLC[Clvl]);
+			Clvl=0;
+			timerStart=false;
+			HintTime=0;
+
+			var arrow=scene.getObjectByName("Char1");
+			var arrow2=scene.getObjectByName("Char2");
+			var door=scene.getObjectByName("door");
+			door.position.y=0;
+			arrow.position.z=3.5;
+			arrow.position.x=-1;
+
+			arrow2.position.z=3.5;
+			arrow2.position.x=1;
+			arrow2.position.y=-10;
+			arrow2.rotation.y=THREE.Math.degToRad( 180 );
+
+			newMove="U";
+			arrow.rotation.y=THREE.Math.degToRad( 180 );
+			puzzleSolved=false;
+			deltaTimeSum=0;
+			parts.forEach(delParticle);
+
+				CollsUp=false;
+			var H1=scene.getObjectByName("H1");
+			var H2=scene.getObjectByName("H2");
+			var H3=scene.getObjectByName("H3");
+			var H4=scene.getObjectByName("H4");
+			var H5=scene.getObjectByName("H5");
+			var BH1=scene.getObjectByName("BH1");
+			var BH2=scene.getObjectByName("BH2");
+			var BH3=scene.getObjectByName("BH3");
+			var BH4=scene.getObjectByName("BH4");
+			var BH5=scene.getObjectByName("BH5");
+		
+			H1.position.y=-1;
+			H1.scale.x=4;
+			H2.position.y=-1;
+			H3.position.y=-1;
+			H4.position.y=-1;
+			H5.position.y=-1;
+			BH1.position.y=-1;
+			BH2.position.y=-1;
+			BH3.position.y=-1;
+			BH4.position.y=-1;
+			BH5.position.y=-1;
+
+			BH2.position.x=1.3;
+			BH1.position.z=0;
+			BH3.position.z=0;
+			BH4.position.z=0;
+			BH5.position.x=-1.3;
+
+			bridge1.position.z=2.9; 
+			bridge2.position.x-1;
+			bridge3.position.z=2.9;
+			bridge4.position.z=2.9;
+			bridge5.position.x=-1;
+			
+			bridge1.name="Bdown";
+			bridge2.name="Bdown";
+			bridge3.name="Bdown";
+			bridge4.name="Bdown";
+			bridge5.name="Bdown";
+			
+			bridge1_2.name="Bdown";
+			
+			bridge3_2.name="Bdown";
+			
+			bridge5_2.name="Bdown";
+			
+			bridge6_2.name="Bdown";
+			bridge8_2.name="Bdown";
+
+			bridge1_2.position.z=2.9;
+
+			bridge3_2.position.z=2.9;
+			bridge5_2.position.x=-1;
+			bridge6_2.position.z=2.9;
+
+			bridge2_2.position.z=2.9;
+			bridge4_2.position.x=-1;
+			bridge7_2.position.z=2.9;
+
+			bridge8_2.position.x=-3.6;
+
+			Jugando=false;
+			Jugando2=false;
+	
+	renderer.render(blackscene, camera);
+
+			
+	document.getElementById("Menu").style.visibility=
+											"visible";
+	document.getElementById("Portada").style.visibility=
+											"visible";
+	
+}
+
+function btnSalir2(){
+
+	if(gameMode=="Solo"){
+		document.getElementById("SoloMenu").style.visibility=										"visible";
+	document.getElementById("Control1").style.visibility=											"visible";
+	}else{
+		document.getElementById("CoopMenu").style.visibility=										"visible";
+	document.getElementById("Control2").style.visibility=											"visible";
+
+	}
+
+	document.getElementById("Scores").style.visibility=
+											"hidden";
+	document.getElementById("ScoreBoard").style.visibility=
+											"hidden";
+	document.getElementById("Rankings1").style.visibility=
+											"hidden";
+	document.getElementById("Rankings2").style.visibility=
+											"hidden";
+	document.getElementById("Rankings3").style.visibility=
+											"hidden";
+	document.getElementById("Rankings4").style.visibility=
+											"hidden";
+	document.getElementById("Rankings5").style.visibility=
+											"hidden";
+
+	
+}
+
+
+function HintShow(lvl){
+	if(lvl==0){
+		
+		document.getElementById("Hint").innerHTML = 
+		"El juego comenzara al <br> precionar el boton"; 
+	}
+
+	if(lvl==1){
+		
+		document.getElementById("Hint").innerHTML = 
+		"Elimina a los enemigos <br> para avanzar"; 
+	}
+
+	if(lvl==2){
+		document.getElementById("Hint").innerHTML = 
+		"Usa tu ataque para <br>"+ 
+		"encender las otras <br>"+
+		"antorchas ";
+	}
+	if(lvl==3){
+		document.getElementById("Hint").innerHTML = 
+		"Camina sobre el boton <br>"+ 
+		"para activar el puente <br>";
+	}
+	if(lvl==4){
+		document.getElementById("Hint").innerHTML = 
+		"Elimina a los enemigos <br> para avanzar"; 
+	}
+	if(lvl==5){
+		document.getElementById("Hint").innerHTML = 
+		"Activa el puente y <br>"+
+		"enciende el resto de <br>"+
+		"las antorchas"; 
+	}
+	if(lvl==6){
+		document.getElementById("Hint").innerHTML = 
+		"Camina sobre los botones <br>"+ 
+		"para activar los puentes <br>";
+	}
+	if(lvl==7){
+		document.getElementById("Hint").innerHTML = 
+		"Elimina a los enemigos <br> para avanzar"; 
+	}
+	if(lvl==8){
+		document.getElementById("Hint").innerHTML = 
+		"Vence al jefe para escapar"; 
+	}
+	
+}
+function HintHide(){
+	document.getElementById("Hint").innerHTML = 
+		""; 
+		document.getElementById("HintDiv2").style.visibility=
+		"hidden";
+}
+
+function Flash(){
+if(Flashing==false){
+		FlashTime+=deltaTime;
+		if(FlashTime>=0.15){
+		pass1.renderToScreen=false;
+		OriginalPass.renderToScreen=true;
+		Flashing=true;
+		PZs.play();
+		}else{
+		OriginalPass.renderToScreen=false;
+		pass1.renderToScreen=true;
+		}
+	}
+}
+
+function StartMusic(){
+if(playOnce==false){
+		Music.play();
+		playOnce=true;
+		
+	}
+}
+
+function SoundsLoad(){
+
+	audioLoader.load( 'assets/Sounds/TimeDungeon.wav', function( buffer ) {
+		Music.setBuffer( buffer );
+		Music.setLoop( true );
+		Music.setVolume( 0.3 );
+		
+
+		});
+
+	audioLoader.load( 'assets/Sounds/puzzlesolved.wav', function( buffer ) {
+		PZs.setBuffer( buffer );
+		PZs.setLoop( false );
+		PZs.setVolume( 0.3 );
+		
+		});
+
+	audioLoader.load( 'assets/Sounds/losesound.wav', function( buffer ) {
+		LoseS.setBuffer( buffer );
+		LoseS.setLoop( false );
+		LoseS.setVolume( 0.3 );
+		
+		});
+
+	audioLoader.load( 'assets/Sounds/winsound.wav', function( buffer ) {
+		WinS.setBuffer( buffer );
+		WinS.setLoop( false );
+		WinS.setVolume( 0.3 );
+		
+		});
+
+	audioLoader.load( 'assets/Sounds/batwings.wav', function( buffer ) {
+		BatSound.setBuffer( buffer );
+		BatSound.setLoop( false );
+		BatSound.setVolume( 0.3 );
+		
+		});
+
+	audioLoader.load( 'assets/Sounds/blobjump.wav', function( buffer ) {
+		BlobSound.setBuffer( buffer );
+		BlobSound.setLoop( false );
+		BlobSound.setVolume( 0.3 );
+		
+		});
+
+	audioLoader.load( 'assets/Sounds/skullSwing.wav', function( buffer ) {
+		SkullSound.setBuffer( buffer );
+		SkullSound.setLoop( false );
+		SkullSound.setVolume( 0.3 );
+		
+		});
+
+	audioLoader.load( 'assets/Sounds/dragonFire.wav', function( buffer ) {
+		FireSound.setBuffer( buffer );
+		FireSound.setLoop( false );
+		FireSound.setVolume( 1.0 );
+		
+		});
+
+	audioLoader.load( 'assets/Sounds/arrowFly.wav', function( buffer ) {
+		ShootSound.setBuffer( buffer );
+		ShootSound.setLoop( false );
+		ShootSound.setVolume( 0.3 );
+		
+		});
+
+	audioLoader.load( 'assets/Sounds/arrowFly2.wav', function( buffer ) {
+		ShootSound2.setBuffer( buffer );
+		ShootSound2.setLoop( false );
+		ShootSound2.setVolume( 0.3 );
+		
+		});
+
+}
+
+
+
+//////////////////FBX//////////////////////////////////////////////////////////////////////////////////////////////////////
+function Blobfbx(xpos,ypos,zpos,Sname){
+
+	var loader = new THREE.FBXLoader();
+	loader.load('assets/enemies/blob.fbx', model =>{
+	model.scale.set(0.2,0.2,0.2);
+	model.mixer= new THREE.AnimationMixer(model);
+	model.BlobAnim=[];
+	model.EHealth=5;
+	model.BlobAnim.push(model.mixer);
+	var action = model.mixer.clipAction(model.animations[0]);
+	action.play();
+	action.setLoop(THREE.LoopRepeat);
+	action.timeScale=1;
+	model.position.x=-xpos;
+	model.position.y=ypos;
+	model.position.z=-zpos;
+	model.name=""+Sname;
+	scene.add(model);
+
+
+	});
+
+}
+
+function LoadBlobs(){
+	Blobfbx(-2,-10,3,"blob1");
+	Blobfbx(2,-10,3,"blob2");
+	Blobfbx(-1,-10,2,"blob3");
+	Blobfbx(1,-10,2,"blob4");
+	Blobfbx(0,-10,1,"blob5");	
+}
+
+function RestartBlobs(){
+			
+			Blobs_1[0].position.set(2,-10,-3);
+			Blobs_1[1].position.set(-2,-10,-3);
+			Blobs_1[2].position.set(1,-10,-2);
+			Blobs_1[3].position.set(-1,-10,-2);
+			Blobs_1[4].position.set(0,-10,-1);
+
+			Blobs_1[0].EHealth=5;
+			Blobs_1[1].EHealth=5;
+			Blobs_1[2].EHealth=5;
+			Blobs_1[3].EHealth=5;
+			Blobs_1[4].EHealth=5;
+
+}
+
+function SpawnBlobs(){
+		if(blobsSpawn==false){
+			Blobs_1[0].position.y=1;
+			Blobs_1[1].position.y=1;
+			Blobs_1[2].position.y=1;
+			Blobs_1[3].position.y=1;
+			Blobs_1[4].position.y=1;
+			blobsSpawn=true;
+			}
+}
+
+function BlobIA(item,index) {	
+	if(item!=null){
+if(item.position.y>0){
+	if(item.BlobAnim.length>0){
+				
+				for(var i=0;i<item.BlobAnim.length;i++){
+					if(i==0){						
+						BlobSound.play();
+					}
+
+					item.BlobAnim[i].update(deltaTime );
+				}
+				
+			}
+			
+	var arrow=scene.getObjectByName("Char1");
+
+	item.lookAt(arrow.position.x ,1.0,arrow.position.z );
+	item.translateZ(1 *deltaTime);
+	
+
+if(arrow.position.z<=item.position.z+.25 &&
+				arrow.position.z>=item.position.z-.25 &&
+				arrow.position.x<=item.position.x+.25  &&
+				arrow.position.x>=item.position.x-.25){
+				CHealth--;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"%";
+				}
+if(Arrows1.length>0){
+	for(var x=0;x<Arrows1.length;x++){
+if(Arrows1[x]!=null){
+if(Arrows1[x].position.z<=item.position.z+.5 &&
+		Arrows1[x].position.z>=item.position.z-.5 &&
+			Arrows1[x].position.x<=item.position.x+.5  &&
+				Arrows1[x].position.x>=item.position.x-.5){			
+
+				item.translateZ(-10 *deltaTime);
+			Arrows1[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Blobs_1[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+}
+}
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function Batfbx(xpos,ypos,zpos,Sname){
+
+	var loader = new THREE.FBXLoader();
+	loader.load('assets/enemies/Bat.fbx', model =>{
+	model.scale.set(0.05,0.05,0.05);
+	model.mixer= new THREE.AnimationMixer(model);
+	model.Anim=[];
+	model.EHealth=3;
+	model.Anim.push(model.mixer);
+	var action = model.mixer.clipAction(model.animations[0]);
+	action.play();
+	action.setLoop(THREE.LoopRepeat);
+	action.timeScale=1;
+	model.position.x=-xpos;
+	model.position.y=ypos;
+	model.position.z=-zpos;
+	model.name=""+Sname;
+	scene.add(model);
+
+
+	});
+
+}
+
+function LoadBats(){
+	Batfbx(-2,-10,3,"bat1");
+	Batfbx(2,-10,3,"bat2");
+	Batfbx(0,-10,3,"bat3");	
+}
+
+function RestartBats(){
+
+			Bats_1[0].position.set(2,-10,-3);
+			Bats_1[1].position.set(-2,-10,-3);
+			Bats_1[2].position.set(1,-10,-2);
+
+			Bats_1[0].EHealth=3;
+			Bats_1[1].EHealth=3;
+			Bats_1[2].EHealth=3;
+			
+}
+
+function SpawnBats(){
+		if(batsSpawn==false){
+			Bats_1[0].position.y=1;
+			Bats_1[1].position.y=1;
+			Bats_1[2].position.y=1;
+			batsSpawn=true;
+			}
+}
+
+function BatIA(item,index) {	
+	if(item!=null){
+if(item.position.y>0){
+	if(item.Anim.length>0){
+				
+				for(var i=0;i<item.Anim.length;i++){
+
+					if(i==0){						
+						BatSound.play();
+					}
+
+					item.Anim[i].update(deltaTime );
+				}
+				
+			}
+			
+	var arrow=scene.getObjectByName("Char1");
+	item.lookAt(arrow.position.x ,1.0,arrow.position.z );
+	item.translateZ(2 *deltaTime);
+	
+
+if(arrow.position.z<=item.position.z+.25 &&
+				arrow.position.z>=item.position.z-.25 &&
+				arrow.position.x<=item.position.x+.25  &&
+				arrow.position.x>=item.position.x-.25){
+
+				CHealth--;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"%";
+				}
+if(Arrows1.length>0){
+	for(var x=0;x<Arrows1.length;x++){
+if(Arrows1[x]!=null){
+if(Arrows1[x].position.z<=item.position.z+.5 &&
+		Arrows1[x].position.z>=item.position.z-.5 &&
+			Arrows1[x].position.x<=item.position.x+.5  &&
+				Arrows1[x].position.x>=item.position.x-.5){			
+
+				item.translateZ(-10 *deltaTime);
+			Arrows1[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Bats_1[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+}
+}
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function Skullfbx(xpos,ypos,zpos,Sname){
+
+	var loader = new THREE.FBXLoader();
+	loader.load('assets/enemies/skull.fbx', model =>{
+	model.scale.set(0.03,0.03,0.03);
+	model.mixer= new THREE.AnimationMixer(model);
+	model.Anim=[];
+	model.EHealth=10;
+	model.Anim.push(model.mixer);
+	var action = model.mixer.clipAction(model.animations[0]);
+	action.play();
+	action.setLoop(THREE.LoopRepeat);
+	action.timeScale=1;
+	model.position.x=-xpos;
+	model.position.y=ypos;
+	model.position.z=-zpos;
+	model.name=""+Sname;
+	scene.add(model);
+
+
+	});
+
+}
+
+function LoadSkulls(){
+	Skullfbx(0,-10,0,"skull1");
+	
+}
+
+function RestartSkulls(){
+
+			Skulls_1[0].position.set(0,-10,0);
+
+			Skulls_1[0].EHealth=10;
+}
+
+function SpawnSkulls(){
+		if(skullsSpawn==false){
+			Skulls_1[0].position.y=1;
+			
+			skullsSpawn=true;
+			}
+}
+
+function SkullIA(item,index) {	
+	if(item!=null){
+if(item.position.y>0){
+	if(item.Anim.length>0){
+				
+				for(var i=0;i<item.Anim.length;i++){
+
+					if(i==0){						
+						SkullSound.play();
+					}
+
+					item.Anim[i].update(deltaTime );
+				}
+				
+			}
+			
+	var arrow=scene.getObjectByName("Char1");
+	item.lookAt(arrow.position.x ,1.0,arrow.position.z );
+	item.translateZ(3 *deltaTime);
+	
+
+if(arrow.position.z<=item.position.z+.25 &&
+				arrow.position.z>=item.position.z-.25 &&
+				arrow.position.x<=item.position.x+.25  &&
+				arrow.position.x>=item.position.x-.25){
+				CHealth-=2;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"%";
+				}
+if(Arrows1.length>0){
+	for(var x=0;x<Arrows1.length;x++){
+if(Arrows1[x]!=null){
+if(Arrows1[x].position.z<=item.position.z+.5 &&
+		Arrows1[x].position.z>=item.position.z-.5 &&
+			Arrows1[x].position.x<=item.position.x+.5  &&
+				Arrows1[x].position.x>=item.position.x-.5){			
+
+				item.translateZ(-10 *deltaTime);
+			Arrows1[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Skulls_1[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+}
+}
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function Dragonfbx(xpos,ypos,zpos,Sname){
+
+	var loader = new THREE.FBXLoader();
+	loader.load('assets/enemies/dragon.fbx', model =>{
+	model.scale.set(.2,.2,.2);
+	model.mixer= new THREE.AnimationMixer(model);
+	model.Anim=[];
+	model.EHealth=50;
+	model.Anim.push(model.mixer);
+	var action = model.mixer.clipAction(model.animations[0]);
+	action.play();
+	action.setLoop(THREE.LoopRepeat);
+	action.timeScale=1;
+	model.position.x=-xpos;
+	model.position.y=ypos;
+	model.position.z=-zpos;
+	model.name=""+Sname;
+	scene.add(model);
+
+
+	});
+
+}
+
+function LoadDragon(){
+	Dragonfbx(0,-10,3,"Dragon1");
+	
+}
+
+function RestartDragon(){
+
+			Dragons_1[0].position.set(0,-10,-3);
+
+			Dragons_1[0].EHealth=50;
+}
+
+function SpawnDragon(){
+		if(DragonsSpawn==false){
+			Dragons_1[0].position.y=1;
+			
+			DragonsSpawn=true;
+			}
+}
+
+function DragonIA(item,index) {	
+	if(item!=null){
+if(item.position.y>0){
+	if(item.Anim.length>0){
+				
+				for(var i=0;i<item.Anim.length;i++){
+					item.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+	var arrow=scene.getObjectByName("Char1");
+
+if(arrow.position.z<=item.position.z+2 &&
+				arrow.position.z>=item.position.z-2 &&
+				arrow.position.x<=item.position.x+2  &&
+				arrow.position.x>=item.position.x-2){
+				CHealth-=2;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"%";
+				}
+if(Arrows1.length>0){
+	for(var x=0;x<Arrows1.length;x++){
+if(Arrows1[x]!=null){
+if(Arrows1[x].position.z<=item.position.z+1 &&
+		Arrows1[x].position.z>=item.position.z-1 &&
+			Arrows1[x].position.x<=item.position.x+1  &&
+				Arrows1[x].position.x>=item.position.x-1){		
+				
+			Arrows1[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Dragons_1[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+}
+}
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function FireBallfbx(xpos,ypos,zpos,Sname){
+
+	var loader = new THREE.FBXLoader();
+	loader.load('assets/enemies/fireBall.fbx', model =>{
+	model.scale.set(0.09,0.09,0.09);
+	model.mixer= new THREE.AnimationMixer(model);
+	model.Anim=[];
+	model.EHealth=1;
+	model.Anim.push(model.mixer);
+	var action = model.mixer.clipAction(model.animations[0]);
+	action.play();
+	action.setLoop(THREE.LoopRepeat);
+	action.timeScale=1;
+	model.position.x=-xpos;
+	model.position.y=ypos;
+	model.position.z=-zpos;
+	model.name=""+Sname;
+	scene.add(model);
+
+
+	});
+
+}
+
+function LoadFireBalls(){
+	FireBallfbx(0,-10,3,"FB1");
+	FireBallfbx(0,-10,3,"FB2");
+	FireBallfbx(0,-10,3,"FB3");	
+}
+
+function RestartFireBalls(){
+
+			FireBalls_1[0].position.set(0,-10,-3);
+			FireBalls_1[1].position.set(0,-10,-3);
+			FireBalls_1[2].position.set(0,-10,-3);
+
+
+
+			FireBalls_1[0].EHealth=1;
+			FireBalls_1[1].EHealth=1;
+			FireBalls_1[2].EHealth=1;
+			
+}
+
+function SpawnFireBalls(){
+		if(FireBallsSpawn==false){
+			FireBalls_1[0].position.y=1;
+			FireBalls_1[1].position.y=1;
+			FireBalls_1[2].position.y=1;
+
+			var arrow=scene.getObjectByName("Char1");
+			FireBalls_1[0].lookAt(arrow.position.x ,1.0,arrow.position.z );
+			FireBalls_1[1].lookAt(arrow.position.x ,1.0,arrow.position.z );
+			FireBalls_1[2].lookAt(arrow.position.x ,1.0,arrow.position.z );
+
+			FireBalls_1[1].rotation.y+=THREE.Math.degToRad( 20 )
+			FireBalls_1[2].rotation.y+=THREE.Math.degToRad( -20 )
+
+			
+			FireBallsSpawn=true;
+			}
+}
+
+function FireBallIA(item,index) {	
+	if(item!=null){
+if(item.position.y>0){
+	if(item.Anim.length>0){
+				
+				for(var i=0;i<item.Anim.length;i++){
+					if(i==0){						
+						FireSound.play();
+					}
+
+					item.Anim[i].update(deltaTime );
+				}
+				
+			}
+			
+	
+	item.translateZ(5 *deltaTime);
+	var arrow=scene.getObjectByName("Char1");
+
+if(arrow.position.z<=item.position.z+.5 &&
+				arrow.position.z>=item.position.z-.5 &&
+				arrow.position.x<=item.position.x+.5  &&
+				arrow.position.x>=item.position.x-.5){
+				CHealth-=20;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"%";
+
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				FireBalls_1[index].position.y=-10;
+			}
+
+				}
+
+				if(item.position.z>8){
+					item.EHealth--;
+			if(item.EHealth<=0){
+				
+				FireBalls_1[index].position.y=-10;
+			}
+			FireBallsSpawn=false;
+			RestartFireBalls();
+
+				}
+
+
+}
+}
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function LoadEnemies(){
+	LoadBlobs();
+	LoadBats();
+	LoadSkulls();
+	LoadDragon();
+	LoadFireBalls();
+}
+
+
+function getEnemies(){
+
+			Blobs_1[0]=scene.getObjectByName("blob1");
+			Blobs_1[1]=scene.getObjectByName("blob2");
+			Blobs_1[2]=scene.getObjectByName("blob3");
+			Blobs_1[3]=scene.getObjectByName("blob4");
+			Blobs_1[4]=scene.getObjectByName("blob5");
+
+			Bats_1[0]=scene.getObjectByName("bat1");
+			Bats_1[1]=scene.getObjectByName("bat2");
+			Bats_1[2]=scene.getObjectByName("bat3");
+
+			Skulls_1[0]=scene.getObjectByName("skull1");
+
+			Dragons_1[0]=scene.getObjectByName("Dragon1");
+
+			FireBalls_1[0]=scene.getObjectByName("FB1");
+			FireBalls_1[1]=scene.getObjectByName("FB2");
+			FireBalls_1[2]=scene.getObjectByName("FB3");
+			gotEnemies=true;
+
+}
+
+function RestartEnemies(){
+if(gotEnemies){
+	RestartBlobs();
+	blobsSpawn=false;
+
+	RestartBats();
+	batsSpawn=false;
+
+	RestartSkulls();
+	skullsSpawn=false;
+
+	RestartDragon();
+	DragonsSpawn=false;
+
+	RestartFireBalls();
+	FireBallsSpawn=false;
+	}
+}
+
+/////////FBX2/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+function LoadBlobs2(){
+	Blobfbx(-2,-10,3,"blob6");
+	Blobfbx(2,-10,3,"blob7");
+	Blobfbx(-1,-10,2,"blob8");
+	Blobfbx(1,-10,2,"blob9");
+	Blobfbx(0,-10,1,"blob10");	
+
+	Blobfbx(-1,-10,3,"blob11");
+	Blobfbx(1,-10,3,"blob12");
+	Blobfbx(0,-10,2,"blob13");
+	
+}
+
+function RestartBlobs2(){
+			
+			Blobs_2[0].position.set(2,-10,-3);
+			Blobs_2[1].position.set(-2,-10,-3);
+			Blobs_2[2].position.set(1,-10,-2);
+			Blobs_2[3].position.set(-1,-10,-2);
+			Blobs_2[4].position.set(0,-10,-1);
+
+			Blobs_2[5].position.set(1,-10,-3);
+			Blobs_2[6].position.set(-1,-10,-3);
+			Blobs_2[7].position.set(0,-10,-2);
+
+
+
+			Blobs_2[0].EHealth=8;
+			Blobs_2[1].EHealth=8;
+			Blobs_2[2].EHealth=8;
+			Blobs_2[3].EHealth=8;
+			Blobs_2[4].EHealth=8;
+			Blobs_2[5].EHealth=8;
+			Blobs_2[6].EHealth=8;
+			Blobs_2[7].EHealth=8;
+
+}
+
+function SpawnBlobs2(){
+		if(blobsSpawn2==false){
+			Blobs_2[0].position.y=1;
+			Blobs_2[1].position.y=1;
+			Blobs_2[2].position.y=1;
+			Blobs_2[3].position.y=1;
+			Blobs_2[4].position.y=1;
+			Blobs_2[5].position.y=1;
+			Blobs_2[6].position.y=1;
+			Blobs_2[7].position.y=1;
+
+			Blobs_2[0].EHealth=8;
+			Blobs_2[1].EHealth=8;
+			Blobs_2[2].EHealth=8;
+			Blobs_2[3].EHealth=8;
+			Blobs_2[4].EHealth=8;
+			Blobs_2[5].EHealth=8;
+			Blobs_2[6].EHealth=8;
+			Blobs_2[7].EHealth=8;
+
+			blobsSpawn2=true;
+			}
+}
+
+function BlobIA2(item,index) {	
+	if(item!=null){
+if(item.position.y>0){
+	if(item.BlobAnim.length>0){
+				
+				for(var i=0;i<item.BlobAnim.length;i++){
+					if(i==0){						
+						BlobSound.play();
+					}
+					item.BlobAnim[i].update(deltaTime );
+				}
+				
+			}
+			
+	var arrow=scene.getObjectByName("Char1");
+	var arrow2=scene.getObjectByName("Char2");
+	var D1=item.position.distanceTo( arrow.position );
+	var D2=item.position.distanceTo( arrow2.position );
+
+	if(D1<D2){
+	item.lookAt(arrow.position.x ,1.0,arrow.position.z );
+	item.translateZ(1 *deltaTime);
+	}else{
+	item.lookAt(arrow2.position.x ,1.0,arrow2.position.z );
+	item.translateZ(1 *deltaTime);
+	}
+	
+	
+
+if(arrow.position.z<=item.position.z+.25 &&
+				arrow.position.z>=item.position.z-.25 &&
+				arrow.position.x<=item.position.x+.25  &&
+				arrow.position.x>=item.position.x-.25){
+				CHealth--;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"px";
+				}
+
+if(arrow2.position.z<=item.position.z+.25 &&
+				arrow2.position.z>=item.position.z-.25 &&
+				arrow2.position.x<=item.position.x+.25  &&
+				arrow2.position.x>=item.position.x-.25){
+				CHealth--;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"px";
+				}
+
+if(Arrows1.length>0){
+	for(var x=0;x<Arrows1.length;x++){
+if(Arrows1[x]!=null){
+if(Arrows1[x].position.z<=item.position.z+.5 &&
+		Arrows1[x].position.z>=item.position.z-.5 &&
+			Arrows1[x].position.x<=item.position.x+.5  &&
+				Arrows1[x].position.x>=item.position.x-.5){			
+
+				item.translateZ(-10 *deltaTime);
+			Arrows1[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Blobs_2[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+
+if(Arrows2.length>0){
+	for(var x=0;x<Arrows2.length;x++){
+if(Arrows2[x]!=null){
+if(Arrows2[x].position.z<=item.position.z+.5 &&
+		Arrows2[x].position.z>=item.position.z-.5 &&
+			Arrows2[x].position.x<=item.position.x+.5  &&
+				Arrows2[x].position.x>=item.position.x-.5){			
+
+				item.translateZ(-10 *deltaTime);
+			Arrows2[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Blobs_2[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+
+
+}
+}
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function LoadBats2(){
+	Batfbx(-2,-10,3,"bat4");
+	Batfbx(2,-10,3,"bat5");
+	Batfbx(0,-10,3,"bat6");	
+	Batfbx(-1,-10,2,"bat7");
+	Batfbx(1,-10,2,"bat8");
+	
+}
+
+function RestartBats2(){
+
+			Bats_2[0].position.set(2,-10,-3);
+			Bats_2[1].position.set(-2,-10,-3);
+			Bats_2[2].position.set(1,-10,-2);
+			Bats_2[3].position.set(1,-10,-2);
+			Bats_2[4].position.set(-1,-10,-2);
+
+			Bats_2[0].EHealth=5;
+			Bats_2[1].EHealth=5;
+			Bats_2[2].EHealth=5;
+			Bats_2[3].EHealth=5;
+			Bats_2[4].EHealth=5;
+			
+}
+
+function SpawnBats2(){
+		if(batsSpawn2==false){
+			Bats_2[0].position.y=1;
+			Bats_2[1].position.y=1;
+			Bats_2[2].position.y=1;
+			Bats_2[3].position.y=1;
+			Bats_2[4].position.y=1;
+
+			Bats_2[0].EHealth=5;
+			Bats_2[1].EHealth=5;
+			Bats_2[2].EHealth=5;
+			Bats_2[3].EHealth=5;
+			Bats_2[4].EHealth=5;
+
+
+			batsSpawn2=true;
+			}
+}
+
+function BatIA2(item,index) {	
+	if(item!=null){
+if(item.position.y>0){
+	if(item.Anim.length>0){
+				
+				for(var i=0;i<item.Anim.length;i++){
+
+					if(i==0){						
+						BatSound.play();
+					}
+					item.Anim[i].update(deltaTime );
+				}
+				
+			}
+			
+	var arrow=scene.getObjectByName("Char1");
+	var arrow2=scene.getObjectByName("Char2");
+	var D1=item.position.distanceTo( arrow.position );
+	var D2=item.position.distanceTo( arrow2.position );
+
+	if(D1<D2){
+	item.lookAt(arrow.position.x ,1.0,arrow.position.z );
+	item.translateZ(1 *deltaTime);
+	}else{
+	item.lookAt(arrow2.position.x ,1.0,arrow2.position.z );
+	item.translateZ(1 *deltaTime);
+	}
+	
+
+if(arrow.position.z<=item.position.z+.25 &&
+				arrow.position.z>=item.position.z-.25 &&
+				arrow.position.x<=item.position.x+.25  &&
+				arrow.position.x>=item.position.x-.25){
+				CHealth--;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"px";
+				}
+if(arrow2.position.z<=item.position.z+.25 &&
+				arrow2.position.z>=item.position.z-.25 &&
+				arrow2.position.x<=item.position.x+.25  &&
+				arrow2.position.x>=item.position.x-.25){
+				CHealth--;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"px";
+				}
+
+if(Arrows1.length>0){
+	for(var x=0;x<Arrows1.length;x++){
+if(Arrows1[x]!=null){
+if(Arrows1[x].position.z<=item.position.z+.5 &&
+		Arrows1[x].position.z>=item.position.z-.5 &&
+			Arrows1[x].position.x<=item.position.x+.5  &&
+				Arrows1[x].position.x>=item.position.x-.5){			
+
+				item.translateZ(-10 *deltaTime);
+			Arrows1[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Bats_2[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+
+if(Arrows2.length>0){
+	for(var x=0;x<Arrows2.length;x++){
+if(Arrows2[x]!=null){
+if(Arrows2[x].position.z<=item.position.z+.5 &&
+		Arrows2[x].position.z>=item.position.z-.5 &&
+			Arrows2[x].position.x<=item.position.x+.5  &&
+				Arrows2[x].position.x>=item.position.x-.5){			
+
+				item.translateZ(-10 *deltaTime);
+			Arrows2[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Bats_2[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+
+}
+}
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function LoadSkulls2(){
+	Skullfbx(-2,-10,0,"skull2");
+	Skullfbx(2,-10,0,"skull3");
+	
+}
+
+function RestartSkulls2(){
+
+			Skulls_2[0].position.set(2,-10,0);
+			Skulls_2[1].position.set(-2,-10,0);
+
+			Skulls_2[0].EHealth=15;
+			Skulls_2[1].EHealth=15;
+}
+
+function SpawnSkulls2(){
+		if(skullsSpawn2==false){
+			Skulls_2[0].position.y=1;
+			Skulls_2[1].position.y=1;
+
+			Skulls_2[0].EHealth=15;
+			Skulls_2[1].EHealth=15;
+			
+			skullsSpawn2=true;
+			}
+}
+
+function SkullIA2(item,index) {	
+	if(item!=null){
+if(item.position.y>0){
+	if(item.Anim.length>0){
+				
+				for(var i=0;i<item.Anim.length;i++){
+					if(i==0){						
+						SkullSound.play();
+					}
+
+					item.Anim[i].update(deltaTime );
+				}
+				
+			}
+			
+	var arrow=scene.getObjectByName("Char1");
+	var arrow2=scene.getObjectByName("Char2");
+	var D1=item.position.distanceTo( arrow.position );
+	var D2=item.position.distanceTo( arrow2.position );
+
+	if(D1<D2){
+	item.lookAt(arrow.position.x ,1.0,arrow.position.z );
+	item.translateZ(3 *deltaTime);
+	}else{
+	item.lookAt(arrow2.position.x ,1.0,arrow2.position.z );
+	item.translateZ(3 *deltaTime);
+	}
+	
+
+if(arrow.position.z<=item.position.z+.25 &&
+				arrow.position.z>=item.position.z-.25 &&
+				arrow.position.x<=item.position.x+.25  &&
+				arrow.position.x>=item.position.x-.25){
+				CHealth-=2;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"px";
+				}
+
+				if(arrow2.position.z<=item.position.z+.25 &&
+				arrow2.position.z>=item.position.z-.25 &&
+				arrow2.position.x<=item.position.x+.25  &&
+				arrow2.position.x>=item.position.x-.25){
+				CHealth-=2;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"px";
+				}
+
+if(Arrows1.length>0){
+	for(var x=0;x<Arrows1.length;x++){
+if(Arrows1[x]!=null){
+if(Arrows1[x].position.z<=item.position.z+.5 &&
+		Arrows1[x].position.z>=item.position.z-.5 &&
+			Arrows1[x].position.x<=item.position.x+.5  &&
+				Arrows1[x].position.x>=item.position.x-.5){			
+
+				item.translateZ(-10 *deltaTime);
+			Arrows1[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Skulls_2[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+
+		if(Arrows2.length>0){
+	for(var x=0;x<Arrows2.length;x++){
+if(Arrows2[x]!=null){
+if(Arrows2[x].position.z<=item.position.z+.5 &&
+		Arrows2[x].position.z>=item.position.z-.5 &&
+			Arrows2[x].position.x<=item.position.x+.5  &&
+				Arrows2[x].position.x>=item.position.x-.5){			
+
+				item.translateZ(-10 *deltaTime);
+			Arrows2[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Skulls_2[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+
+}
+}
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function LoadDragon2(){
+	Dragonfbx(0,-10,3,"Dragon2");
+	
+}
+
+function RestartDragon2(){
+
+			Dragons_2[0].position.set(0,-10,-3);
+
+			Dragons_2[0].EHealth=70;
+}
+
+function SpawnDragon2(){
+		if(DragonsSpawn2==false){
+			Dragons_2[0].position.y=1;
+
+			Dragons_2[0].EHealth=70;
+			
+			DragonsSpawn2=true;
+			}
+}
+
+function DragonIA2(item,index) {	
+	if(item!=null){
+if(item.position.y>0){
+	if(item.Anim.length>0){
+				
+				for(var i=0;i<item.Anim.length;i++){
+					item.Anim[i].update(deltaTime );
+				}
+				
+			}
+
+if(Arrows1.length>0){
+	for(var x=0;x<Arrows1.length;x++){
+if(Arrows1[x]!=null){
+if(Arrows1[x].position.z<=item.position.z+1 &&
+		Arrows1[x].position.z>=item.position.z-1 &&
+			Arrows1[x].position.x<=item.position.x+1  &&
+				Arrows1[x].position.x>=item.position.x-1){		
+				
+			Arrows1[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Dragons_2[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+if(Arrows2.length>0){
+	for(var x=0;x<Arrows2.length;x++){
+if(Arrows2[x]!=null){
+if(Arrows2[x].position.z<=item.position.z+1 &&
+		Arrows2[x].position.z>=item.position.z-1 &&
+			Arrows2[x].position.x<=item.position.x+1  &&
+				Arrows2[x].position.x>=item.position.x-1){		
+				
+			Arrows2[x].name="hit";
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				Dragons_2[index].position.y=-10;
+			}
+				
+
+				}
+			}
+		}
+
+		}
+
+}
+}
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function LoadFireBalls2(){
+	FireBallfbx(0,-10,3,"FB4");
+	FireBallfbx(0,-10,3,"FB5");
+	FireBallfbx(0,-10,3,"FB6");	
+}
+
+function RestartFireBalls2(){
+
+			FireBalls_2[0].position.set(0,-10,-3);
+			FireBalls_2[1].position.set(0,-10,-3);
+			FireBalls_2[2].position.set(0,-10,-3);
+
+
+
+			FireBalls_2[0].EHealth=1;
+			FireBalls_2[1].EHealth=1;
+			FireBalls_2[2].EHealth=1;
+			
+}
+
+function SpawnFireBalls2(){
+		if(FireBallsSpawn2==false){
+
+			FireBalls_2[0].position.y=1;
+			FireBalls_2[1].position.y=1;
+			FireBalls_2[2].position.y=1;
+			var arrow=scene.getObjectByName("Char1");
+			var arrow2=scene.getObjectByName("Char2");
+
+			if(FireBallFocus=="P1"){
+			
+			FireBalls_2[0].lookAt(arrow.position.x ,1.0,arrow.position.z );
+			FireBalls_2[1].lookAt(arrow.position.x ,1.0,arrow.position.z );
+			FireBalls_2[2].lookAt(arrow.position.x ,1.0,arrow.position.z );
+			FireBallFocus="P2";
+			}else{
+
+			FireBalls_2[0].lookAt(arrow2.position.x ,1.0,arrow2.position.z );
+			FireBalls_2[1].lookAt(arrow2.position.x ,1.0,arrow2.position.z );
+			FireBalls_2[2].lookAt(arrow2.position.x ,1.0,arrow2.position.z );
+			FireBallFocus="P1";
+
+			}
+
+
+			FireBalls_2[1].rotation.y+=THREE.Math.degToRad( 20 )
+			FireBalls_2[2].rotation.y+=THREE.Math.degToRad( -20 )
+
+
+			
+			FireBallsSpawn2=true;
+
+			}
+}
+
+function FireBallIA2(item,index) {	
+	if(item!=null){
+if(item.position.y>0){
+	if(item.Anim.length>0){
+				
+				for(var i=0;i<item.Anim.length;i++){
+					if(i==0){						
+						FireSound.play();
+					}
+					item.Anim[i].update(deltaTime );
+				}
+				
+			}
+			
+	
+	item.translateZ(5 *deltaTime);
+	var arrow=scene.getObjectByName("Char1");
+	var arrow2=scene.getObjectByName("Char2");
+
+if(arrow.position.z<=item.position.z+.5 &&
+				arrow.position.z>=item.position.z-.5 &&
+				arrow.position.x<=item.position.x+.5  &&
+				arrow.position.x>=item.position.x-.5){
+				CHealth-=20;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"px";
+
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				FireBalls_2[index].position.y=-10;
+			}
+
+				}
+
+if(arrow2.position.z<=item.position.z+.5 &&
+				arrow2.position.z>=item.position.z-.5 &&
+				arrow2.position.x<=item.position.x+.5  &&
+				arrow2.position.x>=item.position.x-.5){
+				CHealth-=10;
+			document.getElementById("HealthProg").style.width =""+ CHealth+"px";
+
+			item.EHealth--;
+			if(item.EHealth<=0){
+				
+				FireBalls_2[index].position.y=-10;
+			}
+
+				}
+
+				if(item.position.z>8){
+					item.EHealth--;
+			if(item.EHealth<=0){
+				
+				FireBalls_2[index].position.y=-10;
+			}
+			FireBallsSpawn2=false;
+			RestartFireBalls2();
+				}
+
+
+}
+}
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function LoadEnemies2(){
+	LoadBlobs2();
+	LoadBats2();
+	LoadSkulls2();
+	LoadDragon2();
+	LoadFireBalls2();
+}
+
+
+function getEnemies2(){
+
+			Blobs_2[0]=scene.getObjectByName("blob6");
+			Blobs_2[1]=scene.getObjectByName("blob7");
+			Blobs_2[2]=scene.getObjectByName("blob8");
+			Blobs_2[3]=scene.getObjectByName("blob9");
+			Blobs_2[4]=scene.getObjectByName("blob10");
+			Blobs_2[5]=scene.getObjectByName("blob11");
+			Blobs_2[6]=scene.getObjectByName("blob12");
+			Blobs_2[7]=scene.getObjectByName("blob13");
+
+			Bats_2[0]=scene.getObjectByName("bat4");
+			Bats_2[1]=scene.getObjectByName("bat5");
+			Bats_2[2]=scene.getObjectByName("bat6");
+			Bats_2[3]=scene.getObjectByName("bat7");
+			Bats_2[4]=scene.getObjectByName("bat8");
+
+			Skulls_2[0]=scene.getObjectByName("skull2");
+			Skulls_2[1]=scene.getObjectByName("skull3");
+
+			Dragons_2[0]=scene.getObjectByName("Dragon2");
+
+			FireBalls_2[0]=scene.getObjectByName("FB4");
+			FireBalls_2[1]=scene.getObjectByName("FB5");
+			FireBalls_2[2]=scene.getObjectByName("FB6");
+			gotEnemies2=true;
+
+}
+
+function RestartEnemies2(){
+if(gotEnemies2){
+	RestartBlobs2();
+	blobsSpawn2=false;
+
+	RestartBats2();
+	batsSpawn2=false;
+
+	RestartSkulls2();
+	skullsSpawn2=false;
+
+	RestartDragon2();
+	DragonsSpawn2=false;
+
+	RestartFireBalls2();
+	FireBallsSpawn2=false;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////
+function Player1fbx(){
+
+	var loader = new THREE.FBXLoader();
+	loader.load('assets/characters/Shorthos_walk.fbx', model =>{
+	model.scale.set(0.025,0.025,0.025);
+	model.mixer= new THREE.AnimationMixer(model);
+	model.Anim=[];
+	model.Anim.push(model.mixer);
+	var action = model.mixer.clipAction(model.animations[0]);
+	action.play();
+
+	
+	
+	action.timeScale=1;
+	model.position.x=-1;
+	model.position.y=.4;
+	model.position.z=3.5;
+	model.rotation.y+=THREE.Math.degToRad( 180 )
+	model.name="Char1";
+	model.rayos=[new THREE.Vector3(0,0,1)];
+	scene.add(model);
+
+
+	});
+
+}
+
+function Player2fbx(){
+
+	var loader = new THREE.FBXLoader();
+	loader.load('assets/characters/Tallus_walk.fbx', model =>{
+	model.scale.set(0.025,0.025,0.025);
+	model.mixer= new THREE.AnimationMixer(model);
+	model.Anim=[];
+	model.Anim.push(model.mixer);
+	var action = model.mixer.clipAction(model.animations[0]);
+	action.play();
+
+	
+	
+	action.timeScale=1;
+	model.position.x=1;
+	model.position.y=-10;
+	model.position.z=3.5;
+	model.rotation.y+=THREE.Math.degToRad( 180 )
+	model.name="Char2";
+	model.rayos=[new THREE.Vector3(0,0,1)];
+	scene.add(model);
+
+
+	});
+
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function getRanksSolo() {
+				var dataSend={
+					action: 'getSoloScores'
+					};
+
+				$.ajax({
+					url:'webservice/webservice.php',
+					async:true,
+					type:'POST',
+					data: dataSend,
+					success: function(respuestaDelServer){
+					
+						SoloRankList=respuestaDelServer;
+
+						var lines=SoloRankList.split("\n");
+
+
+						Rank1=lines[0].split("/");
+						Rank2=lines[1].split("/");
+						Rank3=lines[2].split("/");
+						Rank4=lines[3].split("/");
+						Rank5=lines[4].split("/");
+
+
+	document.getElementById("N1").innerHTML=Rank1[0];
+	document.getElementById("t1").innerHTML=Rank1[1];
+
+	document.getElementById("N2").innerHTML=Rank2[0];
+	document.getElementById("t2").innerHTML=Rank2[1];
+
+	document.getElementById("N3").innerHTML=Rank3[0];
+	document.getElementById("t3").innerHTML=Rank3[1];
+
+	document.getElementById("N4").innerHTML=Rank4[0];
+	document.getElementById("t4").innerHTML=Rank4[1];
+
+	document.getElementById("N5").innerHTML=Rank5[0];
+	document.getElementById("t5").innerHTML=Rank5[1];
+
+						
+
+					},
+					error: function(x,y,z){
+						alert("Error en peticion al servidor");
+					}
+
+				});
+			
+			}
+
+function setRanksSolo(R1,R2,R3,R4,R5) {
+
+
+	
+				var dataSend={
+					action: 'setSoloScores',
+					Rank1: R1,
+					Rank2: R2,
+					Rank3: R3,
+					Rank4: R4,
+					Rank5: R5
+					};
+
+				$.ajax({
+					url:'webservice/webservice.php',
+					async:true,
+					type:'POST',
+					data: dataSend,
+					success: function(respuestaDelServer){
+						alert("Guardado con exito");
+
+					},
+					error: function(x,y,z){
+						alert("Error en peticion al servidor");
+					}
+
+				});
+			
+			}
+
+function getRanksCoop() {
+				var dataSend={
+					action: 'getCoopScores'
+					};
+
+				$.ajax({
+					url:'webservice/webservice.php',
+					async:true,
+					type:'POST',
+					data: dataSend,
+					success: function(respuestaDelServer){
+					
+						SoloRankList=respuestaDelServer;
+
+						var lines=SoloRankList.split("\n");
+
+						Rank1=lines[0].split("/");
+						Rank2=lines[1].split("/");
+						Rank3=lines[2].split("/");
+						Rank4=lines[3].split("/");
+						Rank5=lines[4].split("/");
+
+
+	document.getElementById("N1").innerHTML=Rank1[0];
+	document.getElementById("t1").innerHTML=Rank1[1];
+
+	document.getElementById("N2").innerHTML=Rank2[0];
+	document.getElementById("t2").innerHTML=Rank2[1];
+
+	document.getElementById("N3").innerHTML=Rank3[0];
+	document.getElementById("t3").innerHTML=Rank3[1];
+
+	document.getElementById("N4").innerHTML=Rank4[0];
+	document.getElementById("t4").innerHTML=Rank4[1];
+
+	document.getElementById("N5").innerHTML=Rank5[0];
+	document.getElementById("t5").innerHTML=Rank5[1];
+
+						
+
+					},
+					error: function(x,y,z){
+						alert("Error en peticion al servidor");
+					}
+
+				});
+			
+			}
+
+function setRanksCoop(R1,R2,R3,R4,R5) {
+
+
+	
+				var dataSend={
+					action: 'setCoopScores',
+					Rank1: R1,
+					Rank2: R2,
+					Rank3: R3,
+					Rank4: R4,
+					Rank5: R5
+					};
+
+				$.ajax({
+					url:'webservice/webservice.php',
+					async:true,
+					type:'POST',
+					data: dataSend,
+					success: function(respuestaDelServer){
+						alert("Guardado con exito");
+
+					},
+					error: function(x,y,z){
+						alert("Error en peticion al servidor");
+					}
+
+				});
+			
+			}
+
+function btnScore(){
+
+	if(gameMode=="Solo"){
+		document.getElementById("SoloMenu").style.visibility=										"hidden";
+	document.getElementById("Control1").style.visibility=											"hidden";
+	getRanksSolo();
+	
+
+	}else{
+		document.getElementById("CoopMenu").style.visibility=										"hidden";
+	document.getElementById("Control2").style.visibility=											"hidden";
+	getRanksCoop();
+
+	}
+//////////////////////////////////////////////////////////////////
+
+
+
+//////////////////////////////////////////////////////////////////
+	document.getElementById("Scores").style.visibility=
+											"visible";
+	document.getElementById("ScoreBoard").style.visibility=
+											"visible";
+	document.getElementById("Rankings1").style.visibility=
+											"visible";
+	document.getElementById("Rankings2").style.visibility=
+											"visible";
+	document.getElementById("Rankings3").style.visibility=
+											"visible";
+	document.getElementById("Rankings4").style.visibility=
+											"visible";
+	document.getElementById("Rankings5").style.visibility=
+											"visible";
+	
+}
+
+function btnGuardar(){
+if(gameMode=="Solo"){
+	var N6=document.getElementById("ScoreName").value;
+	if(N6==""){
+		alert("Falta escribir su apodo");
+		return;
+	}
+	var t6=document.getElementById("Scoretext").innerHTML;
+	
+
+	getRanksSolo();
+
+	var N1=document.getElementById("N1").innerHTML;
+	var t1=document.getElementById("t1").innerHTML;
+
+	var N2=document.getElementById("N2").innerHTML;
+	var t2=document.getElementById("t2").innerHTML;
+
+	var N3=document.getElementById("N3").innerHTML;
+	var t3=document.getElementById("t3").innerHTML;
+
+	var N4=document.getElementById("N4").innerHTML;
+	var t4=document.getElementById("t4").innerHTML;
+
+	var N5=document.getElementById("N5").innerHTML;
+	var t5=document.getElementById("t5").innerHTML;
+
+	var tempoName="";
+	var tempotime="";
+
+
+	if(t6<t1){
+///////////////////////////////1		
+		tempoName=N1;
+		tempotime=t1;
+
+		N1=N6;
+		t1=t6;
+///////////////////////////////2	
+		N6=N2;
+		t6=t2;
+
+		N2=tempoName;
+		t2=tempotime;
+///////////////////////////////3
+		tempoName=N3;
+		tempotime=t3;
+
+		N3=N6;
+		t3=t6;
+///////////////////////////////4		
+		N6=N4;
+		t6=t4;
+
+		N4=tempoName;
+		t4=tempotime;
+///////////////////////////////5
+		tempoName=N5;
+		tempotime=t5;
+
+		N5=N6;
+		t5=t6;
+
+	}else{
+	if(t6<t2){
+///////////////////////////////2
+		tempoName=N2;
+		tempotime=t2;
+
+		N2=N6;
+		t2=t6;
+///////////////////////////////3	
+		N6=N3;
+		t6=t3;
+
+		N3=tempoName;
+		t3=tempotime;
+///////////////////////////////4
+		tempoName=N4;
+		tempotime=t4;
+
+		N4=N6;
+		t4=t6;
+///////////////////////////////5	
+		N6=N5;
+		t6=t5;
+
+		N5=tempoName;
+		t5=tempotime;
+
+	}else{
+	if(t6<t3){
+///////////////////////////////3
+		tempoName=N3;
+		tempotime=t3;
+
+		N3=N6;
+		t3=t6;
+///////////////////////////////4	
+		N6=N4;
+		t6=t4;
+
+		N4=tempoName;
+		t4=tempotime;
+///////////////////////////////5
+		tempoName=N5;
+		tempotime=t5;
+
+		N5=N6;
+		t5=t6;
+		
+	}else{
+	if(t6<t4){
+///////////////////////////////4
+		tempoName=N4;
+		tempotime=t4;
+
+		N4=N6;
+		t4=t6;
+///////////////////////////////5	
+		N6=N5;
+		t6=t5;
+
+		N5=tempoName;
+		t5=tempotime;
+
+	}else{
+	if(t6<t5){
+///////////////////////////////5
+		tempoName=N5;
+		tempotime=t5;
+
+		N5=N6;
+		t5=t6;
+	
+	}
+	}
+	}
+	}
+	}
+	
+	setRanksSolo(""+N1+"/"+t1+"\n",
+				""+N2+"/"+t2+"\n",
+				""+N3+"/"+t3+"\n",
+				""+N4+"/"+t4+"\n",
+				""+N5+"/"+t5+"\n"
+		);
+	}
+
+	if(gameMode=="Coop"){
+	var N6=document.getElementById("ScoreName").value;
+	if(N6==""){
+		alert("Falta escribir su apodo");
+		return;
+	}
+	var t6=document.getElementById("Scoretext").innerHTML;
+	
+
+	getRanksCoop();
+
+	var N1=document.getElementById("N1").innerHTML;
+	var t1=document.getElementById("t1").innerHTML;
+
+	var N2=document.getElementById("N2").innerHTML;
+	var t2=document.getElementById("t2").innerHTML;
+
+	var N3=document.getElementById("N3").innerHTML;
+	var t3=document.getElementById("t3").innerHTML;
+
+	var N4=document.getElementById("N4").innerHTML;
+	var t4=document.getElementById("t4").innerHTML;
+
+	var N5=document.getElementById("N5").innerHTML;
+	var t5=document.getElementById("t5").innerHTML;
+
+	var tempoName="";
+	var tempotime="";
+
+
+	if(t6<t1){
+///////////////////////////////1		
+		tempoName=N1;
+		tempotime=t1;
+
+		N1=N6;
+		t1=t6;
+///////////////////////////////2	
+		N6=N2;
+		t6=t2;
+
+		N2=tempoName;
+		t2=tempotime;
+///////////////////////////////3
+		tempoName=N3;
+		tempotime=t3;
+
+		N3=N6;
+		t3=t6;
+///////////////////////////////4		
+		N6=N4;
+		t6=t4;
+
+		N4=tempoName;
+		t4=tempotime;
+///////////////////////////////5
+		tempoName=N5;
+		tempotime=t5;
+
+		N5=N6;
+		t5=t6;
+
+	}else{
+	if(t6<t2){
+///////////////////////////////2
+		tempoName=N2;
+		tempotime=t2;
+
+		N2=N6;
+		t2=t6;
+///////////////////////////////3	
+		N6=N3;
+		t6=t3;
+
+		N3=tempoName;
+		t3=tempotime;
+///////////////////////////////4
+		tempoName=N4;
+		tempotime=t4;
+
+		N4=N6;
+		t4=t6;
+///////////////////////////////5	
+		N6=N5;
+		t6=t5;
+
+		N5=tempoName;
+		t5=tempotime;
+
+	}else{
+	if(t6<t3){
+///////////////////////////////3
+		tempoName=N3;
+		tempotime=t3;
+
+		N3=N6;
+		t3=t6;
+///////////////////////////////4	
+		N6=N4;
+		t6=t4;
+
+		N4=tempoName;
+		t4=tempotime;
+///////////////////////////////5
+		tempoName=N5;
+		tempotime=t5;
+
+		N5=N6;
+		t5=t6;
+		
+	}else{
+	if(t6<t4){
+///////////////////////////////4
+		tempoName=N4;
+		tempotime=t4;
+
+		N4=N6;
+		t4=t6;
+///////////////////////////////5	
+		N6=N5;
+		t6=t5;
+
+		N5=tempoName;
+		t5=tempotime;
+
+	}else{
+	if(t6<t5){
+///////////////////////////////5
+		tempoName=N5;
+		tempotime=t5;
+
+		N5=N6;
+		t5=t6;
+	
+	}
+	}
+	}
+	}
+	}
+	
+	setRanksCoop(""+N1+"/"+t1+"\n",
+				""+N2+"/"+t2+"\n",
+				""+N3+"/"+t3+"\n",
+				""+N4+"/"+t4+"\n",
+				""+N5+"/"+t5+"\n"
+		);
+	}
+
+	btnSalir1();
+
+}
+
+function shareFB() {
+		var score=document.getElementById("Scoretext").innerHTML;
+		shareScore(score);
+	}
+
+</script>
+</head>
+
+<body>
+		  	
+	<div id="scene-section"/>
+
+	<div id="Health"  style="visibility: hidden">	
+
+			<div id="HealthProg" > </div>
+
+
+	</div>
+
+	<div id="TimerDiv" style="visibility: hidden">	
+			<p id="timertext">2:00</p>
+			
+	</div>
+
+	<div id="HintDiv" style="visibility: hidden">	
+			
+			<button  class="btnHint" tabindex="-1" >
+			</button>
+			
+	</div>
+
+	<div id="HintDiv2" style="visibility: hidden">	
+
+			<button  class="btnHint2"
+			onclick="HintShow(Clvl)"
+			tabindex="-1"
+			></button>
+			<br>
+			<p id="Hint"></p>
+	</div>
+
+	<div id="Portada" style="visibility: visible">	
+			<img id="TD" height="150%" width="150%" src="imagenes/time dungeon.jpg">
+	</div>
+
+	<div id="Menu" style="visibility: visible">	
+			<button  class="btnSolo" onclick="btnSolo()" tabindex="-1"></button>
+			<br>			
+			<button  class="btnCoop" onclick="btnCoop()" tabindex="-1"></button>
+			<br>
+
+
+	</div>
+
+	<div id="Control1" style="visibility: hidden">	
+			<img id="TD" height="100%" width="100%" src="imagenes/player1.jpg">
+	</div>
+
+	<div id="SoloMenu" style="visibility: hidden">	
+			<button class="btnJugar" onclick="btnJugar()" tabindex="-1"></button>
+			<br>			
+			<button class="btnTiempos" onclick="btnScore();" tabindex="-1">
+			</button>
+			<br>						
+			<button class="btnSalir" onclick="btnSalir1()" tabindex="-1"></button>
+	</div>
+
+	<div id="Control2" style="visibility: hidden">	
+			<img id="TD" height="100%" width="100%" src="imagenes/player2.jpg">
+	</div>
+
+	<div id="CoopMenu" style="visibility: hidden" >	
+			<button  class="btnJugar" onclick="btnJugar2()" tabindex="-1"></button>
+			<br>			
+			<button  class="btnTiempos" onclick="btnScore();" tabindex="-1"></button>
+			<br>			
+			<button class="btnSalir" onclick="btnSalir1()" tabindex="-1"></button>
+	</div>
+
+	<div id="ScoreBoard" style="visibility: hidden">	
+			<img id="TD" height="70%" width="70%" src="imagenes/ScoreBoard.jpg">
+	</div>
+	
+
+	
+<div id="Rankings1" style="visibility: hidden">
+		<table >
+  <tr>
+    <th class="Names" id="N1"></th>
+  </tr>
+  <tr>
+    <td class="times" id="t1" ></td>
+  </tr>
+</table>
+</div>
+
+<div id="Rankings2" style="visibility: hidden">
+		<table >
+    <tr >
+    <th class="Names" id="N2"></th>
+  </tr>
+  <tr>
+    <td class="times" id="t2"></td>
+  </tr>
+
+</table>	
+		
+	</div>
+<div id="Rankings3" style="visibility: hidden">
+		<table >
+    <tr >
+    <th class="Names" id="N3"></th>
+  </tr>
+  <tr>
+    <td class="times" id="t3"></td>
+  </tr>
+
+</table>	
+		
+	</div>
+	<div id="Rankings4" style="visibility: hidden">
+		<table >
+    <tr >
+    <th class="Names" id="N4"></th>
+  </tr>
+  <tr>
+    <td class="times" id="t4"></td>
+  </tr>
+
+</table>	
+		
+	</div>
+	<div id="Rankings5" style="visibility: hidden">
+		<table >
+    <tr >
+    <th class="Names" id="N5"></th>
+  </tr>
+  <tr>
+    <td class="times" id="t5"></td>
+  </tr>
+
+</table>	
+		
+	</div>
+
+
+	<div id="Scores" style="visibility: hidden" >	
+			
+			<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+			<button  class="btnSalir" onclick="btnSalir2()" tabindex="-1"></button>
+	</div>
+
+	<div id="PauseMenu" style="visibility: hidden" >	
+			<button class="btnSeguir" 
+					onclick="btnSeguir()" tabindex="-1">
+					</button>
+			<br>			
+			<button class="btnSalir" onclick="btnSalir1()" tabindex="-1"></button>		
+	</div>
+
+
+	<div id="WinMenu" style="visibility: hidden" >	
+			<p id="wintext">GANASTE</p>
+			<p id="Scoretext">Tu tiempo: 0:59</p>
+			<button onclick="shareFB();">Compartir en Facebook</button>
+
+			<input type="text" 
+				style="height: 60px; width: 200px; font-size: 20px;"
+				id="ScoreName" placeholder="Apodo" 
+				maxlength="10" />
+
+			
+			<br>			
+			<button  class="btnGuardar" onclick="btnGuardar();" tabindex="-1" ></button>
+			<br>			
+			<button class="btnSalir" onclick="btnSalir1()" tabindex="-1"></button>
+	</div>
+
+	<div id="LoseMenu" style="visibility: hidden" >	
+			<p id="losetext">PERDISTE<p>
+			<button class="btnSalir" onclick="btnSalir1()" tabindex="-1"></button>		
+	</div>
+
+	
+</body>
+</html>

@@ -1,0 +1,298 @@
+
+#scene-section{
+	position:relative;
+	z-index: 1;
+}
+
+#Portada{
+position:absolute;
+top:10%;
+    left:29%;
+
+	z-index: 2;
+}
+
+#Health{
+position:absolute;
+top:5%;
+    left:2%;
+    width: 200px;
+  height: 20px;
+
+  z-index: 2;
+  background: gray;
+
+}
+#HealthProg{
+  width: 100%;
+  height: 20px;
+  background: red;
+}
+
+
+#TimerDiv{
+position:absolute;
+top:5%;
+    left:5%;
+
+  z-index: 2;
+
+}
+#HintDiv{
+position:absolute;
+top:20%;
+    left:5%;
+
+  z-index: 2;
+
+}
+
+#HintDiv2{
+position:absolute;
+top:20%;
+    left:5%;
+
+  z-index: 2;
+
+}
+
+#Control1{
+position:absolute;
+top:10%;
+    left:35%;
+
+  z-index: 2;
+}
+#Control2{
+position:absolute;
+top:10%;
+    left:35%;
+
+  z-index: 2;
+}
+
+#ScoreBoard{
+position:absolute;
+top:10%;
+    left:32%;
+
+  z-index: 2;
+}
+
+#Rankings1{
+position:absolute;
+top:20%;
+    left:45%;
+
+  z-index: 2;
+}
+#Rankings2{
+position:absolute;
+top:31%;
+    left:45%;
+
+  z-index: 2;
+}
+#Rankings3{
+position:absolute;
+top:42%;
+    left:45%;
+
+  z-index: 2;
+}
+#Rankings4{
+position:absolute;
+top:53%;
+    left:45%;
+
+  z-index: 2;
+}
+#Rankings5{
+position:absolute;
+top:64%;
+    left:45%;
+
+  z-index: 2;
+}
+
+
+
+.Names{
+  color: black;
+  font-size: 45;
+  text-align: center;
+}
+.times{
+  color: grey;
+  font-size: 30;
+  text-align: center;
+}
+th, td {
+    padding: 0px;
+}
+
+#Menu,#SoloMenu,#CoopMenu,
+#PauseMenu,#Scores{
+position:absolute;
+top:50%;
+    left:45%;
+
+	z-index: 3;
+}
+
+#WinMenu,#LoseMenu{
+position:absolute;
+top:30%;
+    left:40%;
+
+  z-index: 3;
+}
+
+
+	 button{
+border: none;
+	width: 200px;
+	height:80px;
+}
+p{
+  text-align: center;
+  color:yellow;
+  font-size: 30;
+}
+
+
+
+#wintext{
+  text-align:center;
+  color:yellow;
+  font-size: 60;
+}
+#Scoretext{
+  
+  color:yellow;
+  font-size: 30;
+}
+#losetext{
+  text-align:center;
+  color:red;
+  font-size: 60;
+}
+.btnHint {
+  border: none;
+  width: 100px;
+  height:100px;
+  background: url('imagenes/hint_off.jpg');
+  background-size: 100px;
+}
+.btnHint2 {
+  border: none;
+  width: 100px;
+  height:100px;
+  background: url('imagenes/hint_on.jpg');
+  background-size: 100px;
+}
+
+.btnSolo {
+  background: url('imagenes/Solo.png');
+  background-size: 200px;
+}
+
+.btnSolo:hover {
+	background: url('imagenes/Solo_H.png');
+	background-size: 200px;
+}
+
+.btnSolo:active {
+  background: url('imagenes/Solo_P.png');
+  background-size: 200px;
+}
+
+.btnCoop {
+  background: url('imagenes/Co-op.png');
+  background-size: 200px;
+}
+
+.btnCoop:hover {
+	background: url('imagenes/Co-op_H.png');
+	background-size: 200px;
+}
+
+.btnCoop:active {
+  background: url('imagenes/Co-op_P.png');
+  background-size: 200px;
+}
+
+.btnJugar {
+  background: url('imagenes/Jugar.png');
+  background-size: 200px;
+}
+
+.btnJugar:hover {
+	background: url('imagenes/Jugar_H.png');
+	background-size: 200px;
+}
+
+.btnJugar:active {
+  background: url('imagenes/Jugar_P.png');
+  background-size: 200px;
+}
+
+.btnTiempos {
+  background: url('imagenes/Tiempos.png');
+  background-size: 200px;
+}
+
+.btnTiempos:hover {
+	background: url('imagenes/Tiempos_H.png');
+	background-size: 200px;
+}
+
+.btnTiempos:active {
+  background: url('imagenes/Tiempos_P.png');
+  background-size: 200px;
+}
+
+.btnSalir {
+  background: url('imagenes/Salir.png');
+  background-size: 200px;
+}
+
+.btnSalir:hover {
+	background: url('imagenes/Salir_H.png');
+	background-size: 200px;
+}
+
+.btnSalir:active {
+  background: url('imagenes/Salir_P.png');
+  background-size: 200px;
+}
+
+.btnSeguir {
+  background: url('imagenes/Seguir.png');
+  background-size: 200px;
+}
+
+.btnSeguir:hover {
+	background: url('imagenes/Seguir_H.png');
+	background-size: 200px;
+}
+
+.btnSeguir:active {
+  background: url('imagenes/Seguir_P.png');
+  background-size: 200px;
+}
+
+.btnGuardar {
+  background: url('imagenes/Guardar.png');
+  background-size: 200px;
+}
+
+.btnGuardar:hover {
+	background: url('imagenes/Guardar_H.png');
+	background-size: 200px;
+}
+
+.btnGuardar:active {
+  background: url('imagenes/Guardar_P.png');
+  background-size: 200px;
+}
